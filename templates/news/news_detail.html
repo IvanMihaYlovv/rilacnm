@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block og_type %}article{% endblock %}
+{% block og_image %}
+  {% if item.cover %}<meta property="og:image" content="{{ site_url }}{{ item.cover.url }}">{% else %}{{ block.super }}{% endif %}
+{% endblock %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<article class="section section--flush">
+  <div class="container prose">
+    <p><time class="article-date" datetime="{{ item.published_at|date:'c' }}">{{ item.published_at|date:"j E Y"|lower }}</time></p>
+    {% if item.cover %}<img class="prose__image" src="{{ item.cover.url }}" alt="{{ item.cover_alt }}" decoding="async">{% endif %}
+    {{ item.body|linebreaks }}
+    <p class="split__more"><a class="link" href="{% url 'news:list' %}">← Всички новини</a></p>
+  </div>
+</article>
+{% endblock %}

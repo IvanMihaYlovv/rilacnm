@@ -1,0 +1,5 @@
+<div class="field{% if field.field.widget.input_type == 'select' %} field--select{% endif %}{% if wide %} field--wide{% endif %}">
+  {{ field }}
+  <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span aria-hidden="true">*</span>{% endif %}</label>
+  <p class="field__error" data-error-for="{{ field.html_name }}" id="{{ field.id_for_label }}-error"></p>
+</div>

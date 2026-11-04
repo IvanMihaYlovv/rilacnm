@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load site_tags static %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<section class="section section--flush" aria-labelledby="project-about-title">
+  <div class="container split">
+    <div class="prose">
+      {% if project.image %}
+        <img class="prose__image" src="{{ project.image.url }}" alt="{{ project.image_alt }}" loading="lazy" decoding="async">
+      {% endif %}
+      <h2 class="section__title" id="project-about-title" data-reveal>За проекта</h2>
+      <div data-reveal>{{ project.body|default:project.summary|linebreaks }}</div>
+
+      {% if project.documents %}
+        <h2 class="section__title" data-reveal>Документи</h2>
+        <ul class="doc-list" data-reveal>
+          {% for doc in project.documents %}
+            <li><a href="{{ doc.url }}" target="_blank" rel="noopener">{{ doc.title }} ↗</a></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+
+    <aside class="panel" data-reveal aria-label="Данни за проекта">
+      <h2 class="panel__title">Данни за проекта</h2>
+      <dl class="specs specs--lg">
+        <div><dt>Статус</dt><dd>{% if project.is_finished %}Приключил{% else %}В изпълнение{% endif %}</dd></div>
+        {% if project.start_date %}<div><dt>Начало</dt><dd>{{ project.start_date|date:"j E Y"|lower }}</dd></div>{% endif %}
+        {% if project.end_date %}<div><dt>Край</dt><dd>{{ project.end_date|date:"j E Y"|lower }}</dd></div>{% endif %}
+        {% if project.client %}<div><dt>Възложител</dt><dd>{{ project.client }}</dd></div>{% endif %}
+        {% if project.location %}<div><dt>Място</dt><dd>{{ project.location }}</dd></div>{% endif %}
+        {% if project.contract_number %}<div><dt>Договор №</dt><dd>{{ project.contract_number }}</dd></div>{% endif %}
+        {% if project.programme %}<div><dt>Програма</dt><dd>{{ project.programme }}</dd></div>{% endif %}
+        {% if project.total_value %}<div><dt>Обща стойност</dt><dd>{{ project.total_value|money }} лв.</dd></div>{% endif %}
+        {% if project.grant_amount %}<div><dt>Безвъзмездна помощ</dt><dd>{{ project.grant_amount|money }} лв.</dd></div>{% endif %}
+        {% if project.eu_amount %}<div><dt>Европейско съфинансиране</dt><dd>{{ project.eu_amount|money }} лв.</dd></div>{% endif %}
+        {% if project.national_amount %}<div><dt>Национално съфинансиране</dt><dd>{{ project.national_amount|money }} лв.</dd></div>{% endif %}
+      </dl>
+      {% if project.grant_share %}
+        <div class="funding" role="img" aria-label="Безвъзмездната помощ е {{ project.grant_share }}% от стойността на проекта">
+          <div class="funding__bar"><span style="width: {{ project.grant_share|stringformat:'d' }}%"></span></div>
+          <p>{{ project.grant_share }}% безвъзмездна помощ</p>
+        </div>
+      {% endif %}
+    </aside>
+  </div>
+</section>
+
+{% if project.funding_statement %}
+<section class="section section--tight" aria-label="Информация за финансирането">
+  <div class="container">
+    <p class="eu-note" data-reveal>
+      <img src="{% static 'img/eu-flag.svg' %}" alt="Флаг на Европейския съюз" width="54" height="36" loading="lazy">
+      <span>{{ project.funding_statement }} <a class="link" href="https://www.eufunds.bg" target="_blank" rel="noopener">www.eufunds.bg</a></span>
+    </p>
+  </div>
+</section>
+{% endif %}
+
+{% if others %}
+<section class="section section--flush" aria-labelledby="other-projects-title">
+  <div class="container">
+    <h2 class="section__title" id="other-projects-title" data-reveal>Други проекти</h2>
+    <ul class="link-grid" data-reveal>
+      {% for other in others %}
+        <li><a href="{{ other.get_absolute_url }}"><strong>{{ other.title }}</strong><span>{% if other.start_date %}{{ other.start_date|date:"Y" }}{% endif %}{% if other.client %} · {{ other.client }}{% endif %}</span></a></li>
+      {% endfor %}
+    </ul>
+    <p class="split__more" data-reveal><a class="link" href="{{ list_url }}">← {{ list_heading }}</a></p>
+  </div>
+</section>
+{% endif %}
+
+{% include 'partials/cta.html' %}
+{% endblock %}

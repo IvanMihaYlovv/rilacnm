@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Страницата не е намерена | {{ company.name }}{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero--center">
+  <div class="page-hero__bg" aria-hidden="true"><div class="hero__grid"></div><div class="hero__glow"></div></div>
+  <div class="container">
+    <p class="eyebrow">Грешка 404</p>
+    <h1 class="page-hero__title">Тази страница не съществува</h1>
+    <p class="page-hero__lead">Адресът може да е променен. Опитайте от някое от тези места:</p>
+    <div class="hero__actions">
+      <a class="btn btn--accent" href="{% url 'catalog:list' %}">Продукти</a>
+      <a class="btn btn--ghost" href="{% url 'core:services' %}">Услуги</a>
+      <a class="btn btn--ghost" href="{% url 'contacts:page' %}">Контакти</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

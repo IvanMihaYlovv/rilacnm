@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block og_type %}product{% endblock %}
+{% block og_image %}
+  {% if images %}{% with image=images.0 %}
+  <meta property="og:image" content="{{ site_url }}{{ image.image.url }}">
+  <meta property="og:image:width" content="{{ image.width }}">
+  <meta property="og:image:height" content="{{ image.height }}">
+  {% endwith %}{% else %}{{ block.super }}{% endif %}
+{% endblock %}
+
+{% block slider_css %}{% if images|length > 1 or related %}{% include 'partials/slider_css.html' %}{% endif %}{% endblock %}
+{% block slider_js %}{% if images|length > 1 or related %}{% include 'partials/slider_js.html' %}{% endif %}{% endblock %}
+
+{% block content %}
+<section class="product-hero">
+  <div class="container">
+    {% include 'partials/breadcrumbs.html' %}
+
+    <div class="product-hero__grid">
+      <div class="gallery">
+        {% if images|length > 1 %}
+          <div class="swiper gallery__main" data-gallery>
+            <ul class="swiper-wrapper">
+              {% for image in images %}
+                <li class="swiper-slide">
+                  <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" width="{{ image.width }}" height="{{ image.height }}"
+                       {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
+                </li>
+              {% endfor %}
+            </ul>
+            <div class="gallery__pagination" data-gallery-pagination></div>
+          </div>
+          <div class="swiper gallery__thumbs" data-gallery-thumbs>
+            <ul class="swiper-wrapper">
+              {% for image in images %}
+                <li class="swiper-slide"><img src="{{ image.image.url }}" alt="" width="{{ image.width }}" height="{{ image.height }}" loading="lazy" decoding="async"></li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% elif images %}
+          <img class="gallery__single" src="{{ images.0.image.url }}" alt="{{ images.0.alt_text }}" width="{{ images.0.width }}" height="{{ images.0.height }}" fetchpriority="high">
+        {% else %}
+          <div class="gallery__placeholder card__placeholder" aria-hidden="true">
+            <span class="card__index">{{ product.category.name }}</span>
+            <span class="card__highlight">{{ product.highlight|default:product.name }}</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="product-hero__info">
+        <p class="eyebrow"><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></p>
+        <h1 class="product-hero__title">{{ product.name }}</h1>
+        <p class="product-hero__lead">{{ product.short_description }}</p>
+
+        {% if product.key_specs %}
+          <dl class="spec-tiles">
+            {% for key, value in product.key_specs %}
+              <div class="spec-tile"><dt>{{ key }}</dt><dd>{{ value }}</dd></div>
+            {% endfor %}
+          </dl>
+        {% endif %}
+
+        <div class="hero__actions">
+          <a class="btn btn--accent" href="#zapitvane" data-magnetic>Поискайте оферта</a>
+          <a class="btn btn--ghost" href="#harakteristiki" data-magnetic>Всички характеристики</a>
+        </div>
+
+        <ul class="perks">
+          <li>Собствено производство в гр. Рила</li>
+          <li>Сертифицирано качество — {% for cert in company.certifications %}{{ cert.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+          <li>Изработка по ваши размери и цвят</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section sheet" id="harakteristiki" aria-labelledby="specs-title">
+  <div class="container">
+    <p class="eyebrow" data-reveal>Технически данни</p>
+    <h2 class="section__title" id="specs-title" data-reveal>Характеристики на продукта</h2>
+
+    <div class="sheet__grid">
+      <table class="spec-table" data-reveal>
+        <caption class="visually-hidden">Технически данни на {{ product.name }}</caption>
+        <tbody>
+          {% for key, value in product.specifications.items %}
+            <tr><th scope="row">{{ key }}</th><td>{{ value }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% if product.standards_list or product.options_list %}
+        <div class="sheet__side">
+          {% if product.standards_list %}
+            <div class="sheet__box" data-reveal>
+              <h3>Стандарти и документи</h3>
+              <ul class="tags">
+                {% for item in product.standards_list %}<li>{{ item }}</li>{% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+          {% if product.options_list %}
+            <div class="sheet__box" data-reveal>
+              <h3>Опции</h3>
+              <ul class="checklist checklist--dark">
+                {% for item in product.options_list %}<li>{{ item }}</li>{% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% if product.description %}
+<section class="section section--tight" aria-labelledby="desc-title">
+  <div class="container prose">
+    <h2 class="section__title" id="desc-title" data-reveal>За продукта</h2>
+    <div data-reveal>{{ product.description|linebreaks }}</div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section contact" id="zapitvane" aria-labelledby="inquiry-title">
+  <div class="container contact__grid">
+    <div>
+      <p class="eyebrow" data-reveal>Запитване</p>
+      <h2 class="section__title" id="inquiry-title" data-reveal>Оферта за „{{ product.name }}“</h2>
+      <p class="section__lead" data-reveal>
+        Кажете ни количеството и къде да доставим — ще ви върнем цена и срок обикновено до един работен ден.
+        Ако ви трябват други размери или цвят, напишете го в съобщението.
+      </p>
+    </div>
+    <div class="contact__forms" data-reveal>
+      {% include 'partials/inquiry_form.html' with form=inquiry_form next=request.path|add:"#zapitvane" %}
+    </div>
+  </div>
+</section>
+
+{% if related %}
+<section class="section products" aria-labelledby="related-title">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow" data-reveal><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></p>
+        <h2 class="section__title" id="related-title" data-reveal>Може да ви е полезно още</h2>
+      </div>
+      <div class="slider-nav" data-reveal>
+        <button class="slider-nav__btn" type="button" data-slider-prev aria-label="Предишен продукт">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="slider-nav__btn" type="button" data-slider-next aria-label="Следващ продукт">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </header>
+  </div>
+  <div class="container container--bleed-right">
+    <div class="swiper products__slider" data-products-slider>
+      <ul class="swiper-wrapper">
+        {% for item in related %}
+          <li class="swiper-slide">{% include 'partials/product_card.html' with product=item index=forloop.counter %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="slider-progress" data-slider-progress></div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<section class="section section--flush contact" id="formulyar" aria-label="Контактна информация и форми">
+  <div class="container contact__grid">
+    <address class="contact__cards contact__cards--flush">
+      <div class="contact__card" data-reveal>
+        <h2>Адрес</h2>
+        <p>{{ company.postal_code }} гр. {{ company.city }}, {{ company.street }}</p>
+        <a href="https://www.google.com/maps/search/?api=1&amp;query={{ company.map_query|urlencode }}" target="_blank" rel="noopener">Вижте на картата ↗</a>
+      </div>
+      <div class="contact__card" data-reveal>
+        <h2>Телефони</h2>
+        <ul>
+          {% for phone in company.phones %}
+            <li><span>{{ phone.label }}</span> <a href="tel:{{ phone.tel }}">{{ phone.display }}</a></li>
+          {% endfor %}
+          <li><span>Факс</span> {{ company.fax }}</li>
+        </ul>
+      </div>
+      <div class="contact__card" data-reveal>
+        <h2>Имейл и работно време</h2>
+        <p><a href="mailto:{{ company.email }}">{{ company.email }}</a></p>
+        <p>{{ company.hours }}</p>
+      </div>
+    </address>
+
+    <div class="contact__forms" data-reveal>
+      <div class="tabs" role="tablist" aria-label="Вид запитване">
+        <button class="tab is-active" role="tab" id="tab-inquiry" aria-controls="panel-inquiry" aria-selected="true" type="button" data-tab>Поискайте оферта</button>
+        <button class="tab" role="tab" id="tab-message" aria-controls="panel-message" aria-selected="false" tabindex="-1" type="button" data-tab>Общ въпрос</button>
+      </div>
+
+      <div class="tab-panel" role="tabpanel" id="panel-inquiry" aria-labelledby="tab-inquiry">
+        {% include 'partials/inquiry_form.html' with form=inquiry_form next=request.path %}
+      </div>
+
+      <div class="tab-panel" role="tabpanel" id="panel-message" aria-labelledby="tab-message" hidden>
+        <form class="form" method="post" action="{% url 'contacts:contact' %}" data-ajax-form data-prefix="{{ contact_form.prefix }}" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <div class="form__grid">
+            {% include 'partials/field.html' with field=contact_form.name %}
+            {% include 'partials/field.html' with field=contact_form.email %}
+            {% include 'partials/field.html' with field=contact_form.phone %}
+            {% include 'partials/field.html' with field=contact_form.subject %}
+            {% include 'partials/field.html' with field=contact_form.message wide=True %}
+          </div>
+          <div class="hp" aria-hidden="true">{{ contact_form.website }}</div>
+          <button class="btn btn--accent btn--block" type="submit" data-magnetic>Изпратете съобщение</button>
+          <p class="form__status" role="status" aria-live="polite" data-form-status></p>
+        </form>
+      </div>
+
+      <p class="form__note">С изпращането на формата се съгласявате да използваме данните ви само за отговор на запитването. Вижте <a class="link" href="{% url 'core:privacy' %}">политиката за поверителност</a>.</p>
+    </div>
+  </div>
+
+  {# Click-to-load map: zero third-party requests (and cookies) until the visitor asks for it. #}
+  <div class="container">
+    <figure class="map" data-map data-src="https://www.google.com/maps?q={{ company.map_query|urlencode }}&amp;hl=bg&amp;z=15&amp;output=embed" data-reveal>
+      <div class="map__facade">
+        <span class="map__pin" aria-hidden="true"></span>
+        <figcaption>
+          <strong>{{ company.legal_name }}</strong>
+          <span>{{ company.street }}, {{ company.postal_code }} гр. {{ company.city }}</span>
+        </figcaption>
+        <div class="map__actions">
+          <button class="btn btn--accent btn--sm" type="button" data-map-load>Покажи картата</button>
+          <a class="btn btn--ghost btn--sm" href="https://www.google.com/maps/dir/?api=1&amp;destination={{ company.map_query|urlencode }}" target="_blank" rel="noopener">Упътване ↗</a>
+        </div>
+        <p class="map__note">Картата се зарежда от Google Maps след натискане.</p>
+      </div>
+    </figure>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% load static %}{% url 'contacts:page' as contact_url %}
+<header class="header" data-header>
+  <div class="header__inner container">
+    <a class="logo" href="{% url 'core:home' %}" aria-label="{{ company.legal_name }} — начало">
+      <img src="{% static 'img/logo.svg' %}" alt="" width="36" height="36">
+      <span class="logo__text">РИЛА<span>-СНМ</span></span>
+    </a>
+
+    <nav class="nav" id="site-nav" aria-label="Основна навигация">
+      <ul class="nav__list">
+        <li><a class="nav__link{% if nav_section == 'home' %} is-active{% endif %}" href="{% url 'core:home' %}"{% if nav_section == 'home' %} aria-current="page"{% endif %}>Начало</a></li>
+        <li><a class="nav__link{% if nav_section == 'about' %} is-active{% endif %}" href="{% url 'core:about' %}"{% if nav_section == 'about' %} aria-current="page"{% endif %}>За нас</a></li>
+        <li><a class="nav__link{% if nav_section == 'products' %} is-active{% endif %}" href="{% url 'catalog:list' %}"{% if nav_section == 'products' %} aria-current="true"{% endif %}>Продукти</a></li>
+        <li><a class="nav__link{% if nav_section == 'services' %} is-active{% endif %}" href="{% url 'core:services' %}"{% if nav_section == 'services' %} aria-current="true"{% endif %}>Услуги</a></li>
+        <li class="nav__dropdown" data-dropdown>
+          <button class="nav__link nav__toggle{% if nav_section == 'projects' %} is-active{% endif %}" type="button" aria-expanded="false" aria-controls="projects-menu" data-dropdown-toggle>
+            Проекти
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="nav__menu" id="projects-menu">
+            <li><a class="nav__menu-link" href="{% url 'projects:eu' %}">Проекти с Европейско финансиране</a></li>
+            <li><a class="nav__menu-link" href="{% url 'projects:realized' %}">Реализирани Проекти</a></li>
+          </ul>
+        </li>
+        <li><a class="nav__link{% if nav_section == 'contacts' %} is-active{% endif %}" href="{{ contact_url }}"{% if nav_section == 'contacts' %} aria-current="page"{% endif %}>Контакти</a></li>
+      </ul>
+      <a class="nav__phone" href="tel:{{ company.phones.0.tel }}">{{ company.phones.0.display }}</a>
+    </nav>
+
+    <a class="btn btn--accent btn--sm header__cta" href="{{ contact_url }}#formulyar" data-inquire="" data-magnetic>Поискайте оферта</a>
+
+    <button class="burger" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Меню" data-burger>
+      <span></span><span></span>
+    </button>
+  </div>
+</header>

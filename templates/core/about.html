@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<section class="section section--flush" aria-label="Завод РИЛА-СНМ в цифри">
+  <div class="container">
+    <dl class="stats stats--flat">
+      {% for stat in stats %}
+        <div class="stat" data-reveal>
+          <dt class="stat__label">{{ stat.label }}</dt>
+          <dd class="stat__value">{{ stat.value }}{{ stat.suffix }}</dd>
+        </div>
+      {% endfor %}
+    </dl>
+  </div>
+</section>
+
+<section class="section about" aria-labelledby="story-title">
+  <div class="container about__grid">
+    <div class="about__intro">
+      <p class="eyebrow" data-reveal>Историята ни</p>
+      <h2 class="section__title" id="story-title" data-reveal>От завод към „Кремиковци“ до семейно предприятие</h2>
+      <div class="prose prose--dark" data-reveal>
+        {% for paragraph in about_text %}<p>{{ paragraph }}</p>{% endfor %}
+      </div>
+    </div>
+
+    <div class="about__side">
+      <ol class="timeline">
+        {% for event in history %}
+          <li data-reveal><span class="timeline__year">{{ event.year|stringformat:"d" }}</span><p>{{ event.text }}</p></li>
+        {% endfor %}
+      </ol>
+
+      <div class="mission" data-reveal>
+        <h3>В какво вярваме</h3>
+        <p>{{ mission }}</p>
+        <ul class="badges badges--dark" aria-label="Сертификати">
+          {% for cert in company.certifications %}<li>{{ cert.name }}</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="capacity-title">
+  <div class="container split">
+    <div>
+      <p class="eyebrow" data-reveal>Капацитет</p>
+      <h2 class="section__title" id="capacity-title" data-reveal>С какво разполага заводът</h2>
+      <p class="section__lead" data-reveal>Рязането, огъването, заваряването и боядисването са под един покрив.</p>
+      <p class="split__more" data-reveal><a class="btn btn--ghost btn--sm" href="{% url 'core:services' %}">Вижте услугите</a></p>
+    </div>
+    <ul class="checklist" data-reveal>
+      {% for item in capacity %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+  </div>
+</section>
+
+{% include 'partials/cta.html' with cta_title='Да работим заедно' cta_text='Разкажете ни за вашия проект — инженерният ни отдел ще предложи решение.' %}
+{% endblock %}

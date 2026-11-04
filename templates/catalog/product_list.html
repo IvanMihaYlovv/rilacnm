@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<div class="container">
+  <nav class="chips" aria-label="Категории">
+    {% for category in categories %}
+      <a class="chip" href="#{{ category.slug }}">{{ category.name }}</a>
+    {% endfor %}
+  </nav>
+</div>
+
+{% for category in categories %}
+  <section class="section section--flush catalog-group" id="{{ category.slug }}" aria-labelledby="cat-{{ category.pk }}">
+    <div class="container">
+      <header class="section__head">
+        <div>
+          <h2 class="section__title" id="cat-{{ category.pk }}" data-reveal><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></h2>
+          <p class="section__lead" data-reveal>{{ category.description }}</p>
+        </div>
+      </header>
+      <ul class="product-grid">
+        {% for product in category.listed %}
+          <li data-reveal>{% include 'partials/product_card.html' with index=forloop.counter %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+{% endfor %}
+
+{% include 'partials/cta.html' with cta_title='Не намирате точния размер?' cta_text='Произвеждаме и по ваш проект — изпратете ни чертеж или скица.' %}
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block slider_css %}{% include 'partials/slider_css.html' %}{% endblock %}
+{% block slider_js %}{% include 'partials/slider_js.html' %}{% endblock %}
+
+{% block content %}
+{% url 'contacts:page' as contact_url %}
+{% url 'catalog:list' as catalog_url %}
+
+{# ───────────────────────── HERO ───────────────────────── #}
+<section class="hero" aria-labelledby="hero-title" data-hero>
+  <div class="hero__bg" aria-hidden="true">
+    <div class="hero__grid"></div>
+    <div class="hero__glow"></div>
+    <span class="hero__year" data-hero-year>1971</span>
+    <svg class="hero__mountains" viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path data-draw d="M0 300 L120 230 L210 262 L330 150 L420 205 L540 88 L640 170 L720 120 L830 210 L930 60 L1040 180 L1130 140 L1240 230 L1340 190 L1440 250"/>
+    </svg>
+  </div>
+
+  <div class="container hero__content">
+    <p class="eyebrow" data-hero-fade>Завод за метални изделия · гр. Рила · от {{ company.founded }} г.</p>
+    <h1 class="hero__title" id="hero-title">
+      <span class="hero__line"><span>Метални контейнери</span></span>
+      <span class="hero__line"><span>и конструкции,</span></span>
+      <span class="hero__line hero__line--accent"><span>направени да издържат.</span></span>
+    </h1>
+    <p class="hero__lead" data-hero-fade>
+      Повече от половин век в подножието на Рила произвеждаме контейнери за отпадъци,
+      парково обзавеждане и метални конструкции по ваш проект. Собствен цех,
+      сертифицирано качество и срокове, на които можете да разчитате.
+    </p>
+    <div class="hero__actions" data-hero-fade>
+      <a class="btn btn--accent" href="{{ contact_url }}#formulyar" data-inquire="" data-magnetic>Поискайте оферта</a>
+      <a class="btn btn--ghost" href="{{ catalog_url }}" data-magnetic>Разгледайте продуктите</a>
+    </div>
+
+    <dl class="stats">
+      {% for stat in stats %}
+        <div class="stat" data-hero-fade>
+          <dt class="stat__label">{{ stat.label }}</dt>
+          <dd class="stat__value"><span data-count="{{ stat.value }}">{{ stat.value }}</span>{{ stat.suffix }}</dd>
+        </div>
+      {% endfor %}
+    </dl>
+  </div>
+
+  <a class="hero__scroll" href="#kategorii" aria-label="Превъртете към категориите"><span></span></a>
+</section>
+
+{# ───────────────────────── MARQUEE ───────────────────────── #}
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track" data-marquee>
+    {% for _ in "12" %}
+      <ul class="marquee__group">
+        <li>Контейнери „Бобър“</li><li>Контейнери „Ракла“</li><li>Метални кофи</li>
+        <li>Паркови кошчета</li><li>Разделно събиране</li><li>Метални конструкции</li>
+        <li>Прахово боядисване</li><li>Плазмено рязане</li>
+      </ul>
+    {% endfor %}
+  </div>
+</div>
+
+{# ───────────────────────── CATEGORIES ───────────────────────── #}
+<section class="section" id="kategorii" aria-labelledby="categories-title">
+  <div class="container">
+    <header class="section__head section__head--stack">
+      <p class="eyebrow" data-reveal>Каталог</p>
+      <h2 class="section__title" id="categories-title" data-reveal>Какво произвеждаме</h2>
+    </header>
+    <ul class="tiles">
+      {% for category in category_cards %}
+        <li data-reveal>
+          <a class="tile" href="{{ category.get_absolute_url }}">
+            <span class="tile__count">{{ category.product_count }} {% if category.product_count == 1 %}продукт{% else %}продукта{% endif %}</span>
+            <h3 class="tile__title">{{ category.name }}</h3>
+            <p class="tile__text">{{ category.description }}</p>
+            <span class="card__cta">Разгледайте <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+{# ───────────────────────── FEATURED PRODUCTS ───────────────────────── #}
+{% if products %}
+<section class="section section--flush products" aria-labelledby="products-title">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow" data-reveal>Продукти</p>
+        <h2 class="section__title" id="products-title" data-reveal>Метални изделия за града, дома и строежа</h2>
+      </div>
+      <div class="slider-nav" data-reveal>
+        <button class="slider-nav__btn" type="button" data-slider-prev aria-label="Предишен продукт">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="slider-nav__btn" type="button" data-slider-next aria-label="Следващ продукт">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </header>
+
+    {% if slider_categories|length > 1 %}
+      <div class="chips" role="group" aria-label="Филтър по категория" data-reveal>
+        <button class="chip is-active" type="button" data-filter="all" aria-pressed="true">Всички</button>
+        {% for category in slider_categories %}
+          <button class="chip" type="button" data-filter="{{ category.slug }}" aria-pressed="false">{{ category.name }}</button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="container container--bleed-right">
+    <div class="swiper products__slider" data-products-slider>
+      <ul class="swiper-wrapper">
+        {% for product in products %}
+          <li class="swiper-slide" data-category="{{ product.category.slug }}">
+            {% include 'partials/product_card.html' with index=forloop.counter %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="slider-progress" data-slider-progress></div>
+  </div>
+</section>
+{% endif %}
+
+{# ───────────────────────── ABOUT TEASER ───────────────────────── #}
+<section class="section about" aria-labelledby="about-title">
+  <div class="container about__grid">
+    <div class="about__intro">
+      <p class="eyebrow" data-reveal>За нас</p>
+      <h2 class="section__title" id="about-title" data-reveal>Повече от 50 години занаят. Същата грижа за всеки детайл.</h2>
+    </div>
+    <div class="about__side">
+      <p class="about__statement" data-split-words>
+        Започнахме през 1971 г. като завод „Рила-ЗСНМ“, част от металургичния комбинат
+        „Кремиковци“. Днес сме семейно предприятие, но сме на същото място — в подножието
+        на Рила, по пътя към Рилския манастир.
+      </p>
+      <p class="about__more" data-reveal><a class="btn btn--dark" href="{% url 'core:about' %}">Научете повече за нас</a></p>
+    </div>
+  </div>
+</section>
+
+{# ───────────────────────── SERVICES TEASER ───────────────────────── #}
+<section class="section services" aria-labelledby="services-title" data-services>
+  <div class="services__pin" data-services-pin>
+    <div class="container services__head">
+      <p class="eyebrow" data-reveal>Услуги</p>
+      <h2 class="section__title" id="services-title" data-reveal>Какво правим в цеха</h2>
+      <p class="section__lead" data-reveal>
+        Цехът ни работи и на ишлеме — от рулона ламарина до боядисаното изделие.
+        <a class="link" href="{% url 'core:services' %}">Вижте всички услуги</a>.
+      </p>
+    </div>
+    <ol class="services__track" data-services-track>
+      {% for service in services %}
+        <li class="service" data-reveal>
+          <span class="service__num">{{ forloop.counter|stringformat:"02d" }}</span>
+          <h3 class="service__title"><a class="service__link" href="{% url 'core:service' service.slug %}">{{ service.title }}</a></h3>
+          <p class="service__spec">{{ service.spec }}</p>
+          <p class="service__text">{{ service.text }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+{# ───────────────────────── PROJECTS TEASER ───────────────────────── #}
+<section class="section" aria-labelledby="projects-title">
+  <div class="container">
+    <header class="section__head section__head--stack">
+      <p class="eyebrow" data-reveal>Проекти</p>
+      <h2 class="section__title" id="projects-title" data-reveal>Инвестираме в цеха, за да работим по-добре за вас</h2>
+    </header>
+    <ul class="tiles tiles--two">
+      <li data-reveal>
+        <a class="tile" href="{% url 'projects:eu' %}">
+          <h3 class="tile__title">Проекти с Европейско финансиране</h3>
+          <p class="tile__text">Как обновихме машинния парк и увеличихме капацитета си с подкрепата на европейските програми.</p>
+          <span class="card__cta">Вижте проектите <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+      </li>
+      <li data-reveal>
+        <a class="tile" href="{% url 'projects:realized' %}">
+          <h3 class="tile__title">Реализирани Проекти</h3>
+          <p class="tile__text">Метални конструкции и изделия, произведени в завода за общини и фирми.</p>
+          <span class="card__cta">Вижте проектите <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+{# ───────────────────────── NEWS (only when there is any) ───────────────────────── #}
+{% if news %}
+<section class="section section--flush news" aria-labelledby="news-title">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow" data-reveal>Новини</p>
+        <h2 class="section__title" id="news-title" data-reveal>Какво ново при нас</h2>
+      </div>
+      <a class="btn btn--ghost btn--sm" href="{% url 'news:list' %}" data-reveal>Всички новини</a>
+    </header>
+    <div class="news__grid">
+      {% for item in news %}{% include 'partials/news_card.html' with heading='h3' %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% include 'partials/cta.html' %}
+{% endblock %}

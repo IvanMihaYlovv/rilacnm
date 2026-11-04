@@ -1,0 +1,25 @@
+{% load site_tags %}<article class="project" data-reveal aria-labelledby="project-{{ project.pk }}">
+  <div class="project__meta">
+    <span class="project__kind">{{ project.get_kind_display }}</span>
+    {% if project.start_date %}
+      <span><time datetime="{{ project.start_date|date:'Y-m-d' }}">{{ project.start_date|date:"Y" }}</time>{% if project.end_date %} – <time datetime="{{ project.end_date|date:'Y-m-d' }}">{{ project.end_date|date:"Y" }}</time>{% endif %}</span>
+    {% endif %}
+    {% if project.is_finished %}<span class="project__status">Приключил</span>{% endif %}
+  </div>
+  <{{ heading|default:'h2' }} class="project__title" id="project-{{ project.pk }}"><a href="{{ project.get_absolute_url }}">{{ project.title }}</a></{{ heading|default:'h2' }}>
+  <p class="project__summary">{{ project.summary }}</p>
+  <dl class="project__facts">
+    {% if project.total_value %}<div><dt>Обща стойност</dt><dd>{{ project.total_value|money }} лв.</dd></div>{% endif %}
+    {% if project.grant_amount %}<div><dt>Безвъзмездна помощ</dt><dd>{{ project.grant_amount|money }} лв.</dd></div>{% endif %}
+    {% if project.contract_number %}<div><dt>Договор</dt><dd>{{ project.contract_number }}</dd></div>{% endif %}
+    {% if project.client %}<div><dt>Възложител</dt><dd>{{ project.client }}</dd></div>{% endif %}
+    {% if project.location %}<div><dt>Място</dt><dd>{{ project.location }}</dd></div>{% endif %}
+  </dl>
+  <div class="project__foot">
+    {% if project.programme %}<p class="project__programme">{{ project.programme }}</p>{% endif %}
+    <a class="card__cta" href="{{ project.get_absolute_url }}">
+      Вижте проекта
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</article>

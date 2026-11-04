@@ -1,0 +1,6 @@
+<article class="news-card" data-reveal>
+  {% if item.cover %}<img src="{{ item.cover.url }}" alt="{{ item.cover_alt }}" loading="lazy" decoding="async">{% endif %}
+  <time datetime="{{ item.published_at|date:'c' }}">{{ item.published_at|date:"j E Y"|lower }}</time>
+  <{{ heading|default:'h2' }} class="news-card__title"><a href="{{ item.get_absolute_url }}">{{ item.title }}</a></{{ heading|default:'h2' }}>
+  <p>{{ item.excerpt }}</p>
+</article>

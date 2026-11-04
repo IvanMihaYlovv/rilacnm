@@ -1,0 +1,16 @@
+<form class="form" method="post" action="{% url 'contacts:inquiry' %}" data-ajax-form data-prefix="{{ form.prefix }}" novalidate>
+  {% csrf_token %}
+  {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+  <div class="form__grid">
+    {% include 'partials/field.html' with field=form.name %}
+    {% include 'partials/field.html' with field=form.company %}
+    {% include 'partials/field.html' with field=form.email %}
+    {% include 'partials/field.html' with field=form.phone %}
+    {% include 'partials/field.html' with field=form.product %}
+    {% include 'partials/field.html' with field=form.quantity %}
+    {% include 'partials/field.html' with field=form.message wide=True %}
+  </div>
+  <div class="hp" aria-hidden="true">{{ form.website }}</div>
+  <button class="btn btn--accent btn--block" type="submit" data-magnetic>Изпратете запитване</button>
+  <p class="form__status" role="status" aria-live="polite" data-form-status></p>
+</form>

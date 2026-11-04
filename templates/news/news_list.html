@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<section class="section section--flush news" aria-label="Новини">
+  <div class="container">
+    {% if news %}
+      <div class="news__grid">
+        {% for item in news %}{% include 'partials/news_card.html' %}{% endfor %}
+      </div>
+    {% else %}
+      <p class="empty">Скоро ще публикуваме новини от завода.</p>
+    {% endif %}
+
+    {% if is_paginated %}
+      <nav class="pagination" aria-label="Страници">
+        {% if page_obj.has_previous %}<a class="btn btn--ghost btn--sm" href="?page={{ page_obj.previous_page_number }}" rel="prev">← По-нови</a>{% endif %}
+        <span>Страница {{ page_obj.number }} от {{ paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a class="btn btn--ghost btn--sm" href="?page={{ page_obj.next_page_number }}" rel="next">По-стари →</a>{% endif %}
+      </nav>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

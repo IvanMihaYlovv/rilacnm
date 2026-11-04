@@ -1,0 +1,12 @@
+<section class="section section--tight cta" aria-labelledby="cta-title">
+  <div class="container cta__inner" data-reveal>
+    <div>
+      <h2 class="cta__title" id="cta-title">{{ cta_title|default:'Имате нужда от оферта?' }}</h2>
+      <p class="cta__text">{{ cta_text|default:'Кажете ни какво ви трябва и в какво количество — ще ви върнем цена и срок.' }}</p>
+    </div>
+    <div class="cta__actions">
+      <a class="btn btn--accent" href="{% url 'contacts:page' %}#formulyar" data-inquire="" data-magnetic>Поискайте оферта</a>
+      <a class="btn btn--ghost" href="tel:{{ company.phones.0.tel }}" data-magnetic>{{ company.phones.0.display }}</a>
+    </div>
+  </div>
+</section>

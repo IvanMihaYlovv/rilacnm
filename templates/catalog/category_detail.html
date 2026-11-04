@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<section class="section section--flush" aria-label="Продукти в категорията">
+  <div class="container">
+    {% if products %}
+      <ul class="product-grid">
+        {% for product in products %}
+          <li data-reveal>{% include 'partials/product_card.html' with index=forloop.counter heading='h2' %}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">Каталогът се обновява. Свържете се с нас за актуална информация.</p>
+    {% endif %}
+  </div>
+</section>
+
+{% if category.body %}
+<section class="section section--flush" aria-labelledby="category-about-title">
+  <div class="container prose">
+    <h2 class="section__title" id="category-about-title" data-reveal>Какво да знаете</h2>
+    <div data-reveal>{{ category.body|linebreaks }}</div>
+  </div>
+</section>
+{% endif %}
+
+{% if other_categories %}
+<section class="section section--flush" aria-labelledby="other-categories-title">
+  <div class="container">
+    <h2 class="section__title" id="other-categories-title" data-reveal>Други категории</h2>
+    <ul class="link-grid" data-reveal>
+      {% for other in other_categories %}
+        <li><a href="{{ other.get_absolute_url }}"><strong>{{ other.name }}</strong><span>{{ other.description }}</span></a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+{% include 'partials/cta.html' %}
+{% endblock %}

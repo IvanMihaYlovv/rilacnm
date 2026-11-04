@@ -1,0 +1,33 @@
+<article class="card" aria-labelledby="p-{{ product.pk }}-title">
+  <a class="card__media" href="{{ product.get_absolute_url }}" tabindex="-1" aria-hidden="true">
+    {% with image=product.primary_image %}
+      {% if image %}
+        <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" width="{{ image.width }}" height="{{ image.height }}" loading="lazy" decoding="async">
+      {% else %}
+        <span class="card__placeholder">
+          <span class="card__index">{{ index|stringformat:"02d" }}</span>
+          <span class="card__highlight">{{ product.highlight|default:product.category.name }}</span>
+        </span>
+      {% endif %}
+    {% endwith %}
+    <span class="card__tag">{{ product.category.name }}</span>
+  </a>
+  <div class="card__body">
+    <{{ heading|default:'h3' }} class="card__title" id="p-{{ product.pk }}-title"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></{{ heading|default:'h3' }}>
+    <p class="card__text">{{ product.short_description }}</p>
+    {% if product.key_specs %}
+      <dl class="specs">
+        {% for key, value in product.key_specs %}
+          <div><dt>{{ key }}</dt><dd>{{ value }}</dd></div>
+        {% endfor %}
+      </dl>
+    {% endif %}
+    <div class="card__actions">
+      <a class="card__cta" href="{{ product.get_absolute_url }}">
+        Характеристики
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a class="card__link" href="{{ product.get_absolute_url }}#zapitvane">Запитване</a>
+    </div>
+  </div>
+</article>

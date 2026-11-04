@@ -1,0 +1,77 @@
+{% load static %}<!DOCTYPE html>
+<html lang="bg" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}{{ seo_title|default:company.legal_name }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ seo_description|default:company.description }}{% endblock %}">
+  <meta name="robots" content="{% block robots %}{% if noindex %}noindex, follow{% else %}index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1{% endif %}{% endblock %}">
+  <link rel="canonical" href="{{ canonical_url }}">
+  {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
+
+  {# Open Graph / social previews #}
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:locale" content="bg_BG">
+  <meta property="og:site_name" content="{{ company.legal_name }}">
+  <meta property="og:title" content="{{ seo_title|default:company.legal_name }}">
+  <meta property="og:description" content="{{ seo_description|default:company.description }}">
+  <meta property="og:url" content="{{ canonical_url }}">
+  {% block og_image %}
+  <meta property="og:image" content="{{ site_url }}{% static 'img/og-cover.png' %}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  {% endblock %}
+  <meta property="og:image:alt" content="{{ company.legal_name }} — {{ company.tagline }}">
+  <meta name="twitter:card" content="summary_large_image">
+
+  {# Local SEO #}
+  <meta name="geo.region" content="BG-10">
+  <meta name="geo.placename" content="{{ company.city }}">
+  <meta name="geo.position" content="{{ company.geo.lat }};{{ company.geo.lng }}">
+  <meta name="ICBM" content="{{ company.geo.lat }}, {{ company.geo.lng }}">
+
+  <meta name="theme-color" content="#08110f">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="icon" href="{% static 'img/logo.svg' %}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+
+  {# Performance: open connections early, never block rendering on fonts #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
+  {% block slider_css %}{% endblock %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+  {# Hide animated elements only when animations will actually run; fail open if the CDN is down. #}
+  <script>(function(d){if(!matchMedia('(prefers-reduced-motion: reduce)').matches){d.classList.add('js-anim');setTimeout(function(){if(!window.gsap)d.classList.remove('js-anim')},2500)}})(document.documentElement)</script>
+
+  {% if schema %}<script type="application/ld+json">{{ schema }}</script>{% endif %}
+</head>
+<body>
+  <a class="skip-link" href="#main">Към съдържанието</a>
+  <div class="scroll-progress" aria-hidden="true"><span data-progress></span></div>
+
+  {% include 'partials/header.html' %}
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include 'partials/footer.html' %}
+
+  {% include 'partials/mobile_bar.html' %}
+
+  {% if messages %}
+    <div class="toasts" role="status" aria-live="polite">
+      {% for message in messages %}<p class="toast toast--{{ message.tags }}">{{ message }}</p>{% endfor %}
+    </div>
+  {% endif %}
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js" defer crossorigin="anonymous"></script>
+  {% block slider_js %}{% endblock %}
+  <script src="{% static 'js/main.js' %}" defer></script>
+</body>
+</html>

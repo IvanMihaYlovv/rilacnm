@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<section class="section section--flush" aria-labelledby="service-details-title">
+  <div class="container split">
+    <div class="prose" data-reveal>
+      <h2 class="section__title" id="service-details-title">Как работим</h2>
+      {% for paragraph in service.body %}<p>{{ paragraph }}</p>{% endfor %}
+    </div>
+    <aside class="panel" data-reveal aria-label="Параметри на услугата">
+      <h2 class="panel__title">Параметри</h2>
+      <dl class="specs specs--lg">
+        {% for key, value in service.facts %}<div><dt>{{ key }}</dt><dd>{{ value }}</dd></div>{% endfor %}
+      </dl>
+      <a class="btn btn--accent btn--block" href="{% url 'contacts:page' %}#formulyar" data-inquire="">Поискайте оферта</a>
+    </aside>
+  </div>
+</section>
+
+<section class="section section--flush" aria-labelledby="other-services-title">
+  <div class="container">
+    <h2 class="section__title" id="other-services-title" data-reveal>Други услуги</h2>
+    <ul class="link-grid" data-reveal>
+      {% for other in other_services %}
+        <li><a href="{% url 'core:service' other.slug %}"><strong>{{ other.title }}</strong><span>{{ other.spec }}</span></a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+{% include 'partials/cta.html' with cta_title='Имате чертеж?' cta_text='Изпратете ни го — ще предложим технология, срок и цена.' %}
+{% endblock %}

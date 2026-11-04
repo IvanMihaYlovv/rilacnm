@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<section class="section section--flush projects" aria-label="{{ page_heading }}">
+  <div class="container">
+    {% if view.kind == 'eu' %}
+      <p class="eu-note" data-reveal>
+        <img src="{% static 'img/eu-flag.svg' %}" alt="Флаг на Европейския съюз" width="54" height="36" loading="lazy">
+        <span>Проектите са съфинансирани от Европейския съюз и от националния бюджет на Република България.</span>
+      </p>
+    {% endif %}
+
+    <div class="projects__list">
+      {% for project in projects %}
+        {% include 'partials/project_card.html' %}
+      {% empty %}
+        <div class="empty-state" data-reveal>
+          <h2>Подготвяме портфолиото ни</h2>
+          <p>Скоро ще покажем тук реализирани проекти. Междувременно разгледайте какво можем да произведем за вас.</p>
+          <div class="hero__actions">
+            <a class="btn btn--accent" href="{% url 'core:services' %}">Вижте услугите</a>
+            <a class="btn btn--ghost" href="{% url 'projects:eu' %}">Проекти с Европейско финансиране</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% include 'partials/cta.html' with cta_title='Планирате проект?' cta_text='Изпратете ни чертеж или идея — инженерите ни ще предложат решение.' %}
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<section class="section section--flush" aria-labelledby="certificates-title">
+  <div class="container">
+    <h2 class="visually-hidden" id="certificates-title">Сертификати</h2>
+    <ul class="tiles">
+      {% for cert in company.certifications %}
+        <li data-reveal>
+          <div class="tile tile--static">
+            <span class="tile__count">{{ cert.edition }}</span>
+            <h3 class="tile__title">{{ cert.title }}</h3>
+            <p class="tile__text">{{ cert.text }}</p>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="section about" aria-labelledby="policy-title">
+  <div class="container legal">
+    <p class="eyebrow" data-reveal>Политика</p>
+    <h2 class="section__title" id="policy-title" data-reveal>Политика по качество, околна среда, здраве и безопасност при работа</h2>
+    <div class="prose prose--dark" data-reveal>
+      {% for paragraph in policy.intro %}<p>{{ paragraph }}</p>{% endfor %}
+      <p>{{ policy.aim }}</p>
+      <h3>Основни принципи</h3>
+      <ul class="checklist checklist--dark">
+        {% for item in policy.principles %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+      <h3>Стратегия на ръководството</h3>
+      <p>{{ policy.strategy_intro }}</p>
+      <ul class="checklist checklist--dark">
+        {% for item in policy.strategy %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+      <p>{{ policy.closing }}</p>
+      <h3>Декларираме</h3>
+      <ul class="checklist checklist--dark">
+        {% for item in policy.declaration %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+      <p><strong>{{ policy.signed }}</strong><br>{{ policy.updated }}</p>
+    </div>
+  </div>
+</section>
+
+{% include 'partials/cta.html' with cta_title='Нужни са ви документи за търг?' cta_text='Можем да предоставим сертификати за съответствие и протоколи от изпитвания.' %}
+{% endblock %}

@@ -1,0 +1,80 @@
+{% load static %}
+<footer class="footer">
+  <div class="container">
+    <address class="footer__contacts">
+      <div class="footer__contact">
+        <h2 class="footer__title">Адрес</h2>
+        <p>{{ company.street }}<br>{{ company.postal_code }} гр. {{ company.city }}, {{ company.region }}</p>
+        <a class="footer__more" href="https://www.google.com/maps/search/?api=1&amp;query={{ company.map_query|urlencode }}" target="_blank" rel="noopener">Вижте на картата ↗</a>
+      </div>
+      <div class="footer__contact">
+        <h2 class="footer__title">Телефони</h2>
+        <ul>
+          {% for phone in company.phones %}
+            <li><span>{{ phone.label }}</span> <a href="tel:{{ phone.tel }}">{{ phone.display }}</a></li>
+          {% endfor %}
+          <li><span>Факс</span> {{ company.fax }}</li>
+        </ul>
+      </div>
+      <div class="footer__contact">
+        <h2 class="footer__title">Имейл</h2>
+        <p><a class="footer__email" href="mailto:{{ company.email }}">{{ company.email }}</a></p>
+        <a class="footer__more" href="{% url 'contacts:page' %}#formulyar">Изпратете запитване →</a>
+      </div>
+      <div class="footer__contact">
+        <h2 class="footer__title">Работно време</h2>
+        <p>{{ company.hours }}</p>
+      </div>
+    </address>
+  </div>
+
+  <div class="container footer__grid">
+    <div class="footer__brand">
+      <a class="logo" href="{% url 'core:home' %}" aria-label="{{ company.legal_name }} — начало">
+        <img src="{% static 'img/logo.svg' %}" alt="" width="36" height="36" loading="lazy">
+        <span class="logo__text">РИЛА<span>-СНМ</span></span>
+      </a>
+      <p>Метални контейнери, парково обзавеждане и конструкции по проект. Произведено в подножието на Рила от {{ company.founded }} г.</p>
+      <ul class="badges" aria-label="Сертификати">
+        {% for cert in company.certifications %}<li><a href="{% url 'core:certificates' %}">{{ cert.name }}</a></li>{% endfor %}
+      </ul>
+    </div>
+
+    <nav aria-label="Продукти">
+      <h2 class="footer__title"><a href="{% url 'catalog:list' %}">Продукти</a></h2>
+      <ul>
+        {% for category in footer_categories %}
+          <li><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <nav aria-label="Услуги">
+      <h2 class="footer__title"><a href="{% url 'core:services' %}">Услуги</a></h2>
+      <ul>
+        {% for service in footer_services %}
+          <li><a href="{% url 'core:service' service.slug %}">{{ service.title }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <nav aria-label="Компания">
+      <h2 class="footer__title">Компания</h2>
+      <ul>
+        <li><a href="{% url 'core:about' %}">За нас</a></li>
+        <li><a href="{% url 'projects:eu' %}">Проекти с Европейско финансиране</a></li>
+        <li><a href="{% url 'projects:realized' %}">Реализирани Проекти</a></li>
+        <li><a href="{% url 'core:certificates' %}">Сертификати</a></li>
+        <li><a href="{% url 'news:list' %}">Новини</a></li>
+        <li><a href="{% url 'core:faq' %}">Въпроси и отговори</a></li>
+        <li><a href="{% url 'contacts:page' %}">Контакти</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="container footer__bottom">
+    <p>© {% now "Y" %} {{ company.legal_name }}{% if company.eik %}, ЕИК {{ company.eik }}{% endif %}. Всички права запазени.</p>
+    <p><a href="{% url 'core:privacy' %}">Политика за поверителност</a></p>
+    <p><a href="{% url 'projects:eu' %}">Част от проектите ни са съфинансирани от Европейския съюз.</a></p>
+  </div>
+</footer>

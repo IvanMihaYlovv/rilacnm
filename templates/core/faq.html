@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<section class="section section--flush" aria-label="Въпроси и отговори">
+  <div class="container faq__list faq__list--page">
+    {% for item in faq %}
+      <details class="faq__item" data-reveal{% if forloop.first %} open{% endif %}>
+        <summary><h2>{{ item.q }}</h2><span class="faq__icon" aria-hidden="true"></span></summary>
+        <div class="faq__answer"><p>{{ item.a }}</p></div>
+      </details>
+    {% endfor %}
+  </div>
+</section>
+
+{% include 'partials/cta.html' with cta_title='Не намерихте отговор?' cta_text='Обадете ни се или ни пишете — инженерният отдел ще отговори на техническите въпроси.' %}
+{% endblock %}

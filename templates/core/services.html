@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'partials/page_hero.html' %}
+
+<section class="section section--flush" aria-label="Списък с услуги">
+  <ol class="services__track services__track--grid">
+    {% for service in services %}
+      <li class="service" data-reveal>
+        <span class="service__num">{{ forloop.counter|stringformat:"02d" }}</span>
+        <h2 class="service__title"><a class="service__link" href="{% url 'core:service' service.slug %}">{{ service.title }}</a></h2>
+        <p class="service__spec">{{ service.spec }}</p>
+        <p class="service__text">{{ service.text }}</p>
+      </li>
+    {% endfor %}
+  </ol>
+</section>
+
+{% include 'partials/cta.html' with cta_title='Имате чертеж?' cta_text='Изпратете ни го — ще предложим технология, срок и цена.' %}
+{% endblock %}

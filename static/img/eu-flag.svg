@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 810 540" role="img" aria-label="Флаг на Европейския съюз">
+  <rect width="810" height="540" fill="#039"/>
+  <defs>
+    <path id="s" fill="#fc0" d="M0-30 6.74-9.27 28.53-9.27 10.9 3.54 17.63 24.27 0 11.46-17.63 24.27-10.9 3.54-28.53-9.27-6.74-9.27Z"/>
+  </defs>
+  <use xlink:href="#s" href="#s" x="405" y="90"/>
+  <use xlink:href="#s" href="#s" x="495" y="114.1"/>
+  <use xlink:href="#s" href="#s" x="560.9" y="180"/>
+  <use xlink:href="#s" href="#s" x="585" y="270"/>
+  <use xlink:href="#s" href="#s" x="560.9" y="360"/>
+  <use xlink:href="#s" href="#s" x="495" y="425.9"/>
+  <use xlink:href="#s" href="#s" x="405" y="450"/>
+  <use xlink:href="#s" href="#s" x="315" y="425.9"/>
+  <use xlink:href="#s" href="#s" x="249.1" y="360"/>
+  <use xlink:href="#s" href="#s" x="225" y="270"/>
+  <use xlink:href="#s" href="#s" x="249.1" y="180"/>
+  <use xlink:href="#s" href="#s" x="315" y="114.1"/>
+</svg>
