@@ -1,19 +1,58 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 {% include 'partials/page_hero.html' %}
 
 <section class="section section--flush" aria-labelledby="certificates-title">
   <div class="container">
-    <h2 class="visually-hidden" id="certificates-title">Сертификати</h2>
-    <ul class="tiles">
+    <h2 class="visually-hidden" id="certificates-title">Сертификати за система за управление</h2>
+    <ul class="certs">
       {% for cert in company.certifications %}
         <li data-reveal>
-          <div class="tile tile--static">
-            <span class="tile__count">{{ cert.edition }}</span>
-            <h3 class="tile__title">{{ cert.title }}</h3>
-            <p class="tile__text">{{ cert.text }}</p>
-          </div>
+          <article class="cert">
+            <a class="cert__scan" href="{% static cert.image %}" target="_blank" rel="noopener" aria-label="Отвори сертификат {{ cert.edition }} в пълен размер">
+              <img src="{% static cert.image %}" alt="Сертификат {{ cert.edition }} на РИЛА-СНМ ЕООД" loading="lazy" decoding="async" width="859" height="1280">
+            </a>
+            <div class="cert__body">
+              <span class="tile__count">{{ cert.edition }}</span>
+              <h3 class="tile__title">{{ cert.title }}</h3>
+              <p class="tile__text">{{ cert.text }}</p>
+              <dl class="cert__meta">
+                <div><dt>Сертификат №</dt><dd>{{ cert.number }}</dd></div>
+                <div><dt>Издаден от</dt><dd>{{ cert.issuer }}</dd></div>
+                <div><dt>Валидност</dt><dd>{{ cert.valid }}</dd></div>
+              </dl>
+            </div>
+          </article>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="product-certificates-title">
+  <div class="container">
+    <p class="eyebrow" data-reveal>Продукти</p>
+    <h2 class="section__title" id="product-certificates-title" data-reveal>Сертификати за съответствие на продуктите</h2>
+    <ul class="certs certs--two">
+      {% for cert in product_certificates %}
+        <li data-reveal>
+          <article class="cert">
+            <a class="cert__scan" href="{% static cert.image %}" target="_blank" rel="noopener" aria-label="Отвори „{{ cert.title }}“ в пълен размер">
+              <img src="{% static cert.image %}" alt="{{ cert.title }}" loading="lazy" decoding="async" width="1000" height="1320">
+            </a>
+            <div class="cert__body">
+              <h3 class="tile__title">{{ cert.title }}</h3>
+              <p class="tile__text">{{ cert.subject }}</p>
+              <dl class="cert__meta">
+                <div><dt>Стандарти</dt><dd>{{ cert.standard }}</dd></div>
+                <div><dt>Сертификат №</dt><dd>{{ cert.number }}</dd></div>
+                <div><dt>Издаден от</dt><dd>{{ cert.issuer }}</dd></div>
+                <div><dt>Валидност</dt><dd>{{ cert.valid }}</dd></div>
+              </dl>
+            </div>
+          </article>
         </li>
       {% endfor %}
     </ul>
@@ -24,21 +63,21 @@
   <div class="container legal">
     <p class="eyebrow" data-reveal>Политика</p>
     <h2 class="section__title" id="policy-title" data-reveal>Политика по качество, околна среда, здраве и безопасност при работа</h2>
-    <div class="prose prose--dark" data-reveal>
+    <div class="prose" data-reveal>
       {% for paragraph in policy.intro %}<p>{{ paragraph }}</p>{% endfor %}
       <p>{{ policy.aim }}</p>
       <h3>Основни принципи</h3>
-      <ul class="checklist checklist--dark">
+      <ul class="checklist">
         {% for item in policy.principles %}<li>{{ item }}</li>{% endfor %}
       </ul>
       <h3>Стратегия на ръководството</h3>
       <p>{{ policy.strategy_intro }}</p>
-      <ul class="checklist checklist--dark">
+      <ul class="checklist">
         {% for item in policy.strategy %}<li>{{ item }}</li>{% endfor %}
       </ul>
       <p>{{ policy.closing }}</p>
       <h3>Декларираме</h3>
-      <ul class="checklist checklist--dark">
+      <ul class="checklist">
         {% for item in policy.declaration %}<li>{{ item }}</li>{% endfor %}
       </ul>
       <p><strong>{{ policy.signed }}</strong><br>{{ policy.updated }}</p>

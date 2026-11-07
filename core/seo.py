@@ -31,7 +31,7 @@ def organization_node():
         'name': c['legal_name'],
         'alternateName': c['name'],
         'url': absolute('/'),
-        'logo': absolute(f'{settings.STATIC_URL}img/logo.svg'),
+        'logo': absolute(f'{settings.STATIC_URL}img/logo-512.png'),
         'image': absolute(f'{settings.STATIC_URL}img/og-cover.png'),
         'description': c['description'],
         'foundingDate': str(c['founded']),

@@ -21,7 +21,7 @@
     <div class="about__intro">
       <p class="eyebrow" data-reveal>Историята ни</p>
       <h2 class="section__title" id="story-title" data-reveal>От завод към „Кремиковци“ до семейно предприятие</h2>
-      <div class="prose prose--dark" data-reveal>
+      <div class="prose" data-reveal>
         {% for paragraph in about_text %}<p>{{ paragraph }}</p>{% endfor %}
       </div>
     </div>
@@ -36,7 +36,7 @@
       <div class="mission" data-reveal>
         <h3>В какво вярваме</h3>
         <p>{{ mission }}</p>
-        <ul class="badges badges--dark" aria-label="Сертификати">
+        <ul class="badges" aria-label="Сертификати">
           {% for cert in company.certifications %}<li>{{ cert.name }}</li>{% endfor %}
         </ul>
       </div>

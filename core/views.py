@@ -10,7 +10,7 @@ from catalog.models import Category, Product
 from news.models import News
 
 from .content import (ABOUT_TEXT, CAPACITY, COMPANY, FAQ, HISTORY, LEGACY_PAGES, LEGACY_PRODUCTS,
-                      MISSION, QUALITY_POLICY, SERVICES, SERVICES_BY_SLUG, STATS)
+                      MISSION, PRODUCT_CERTIFICATES, QUALITY_POLICY, SERVICES, SERVICES_BY_SLUG, STATS)
 from .seo import SeoPageMixin, faq_node, item_list_node, service_node
 
 
@@ -141,11 +141,12 @@ class CertificatesView(SitePageView):
     page_title = 'Сертификати ISO 9001, 14001, 45001 и политика по качество'
     page_heading = 'Сертификати и политика по качество'
     page_lead = ('Качеството, опазването на околната среда и безопасността при работа в завода '
-                 'са уредени в интегрирана система за управление, сертифицирана по три стандарта.')
+                 'са уредени в интегрирана система за управление, сертифицирана по три стандарта. '
+                 'Продуктите ни имат и сертификати за съответствие.')
     page_eyebrow = 'Качество'
     page_description = ('РИЛА-СНМ работи по сертифицирана система за управление съгласно ISO 9001:2015, '
                         'ISO 14001:2015 и ISO 45001:2018. Вижте сертификатите и политиката ни.')
-    extra_context = {'policy': QUALITY_POLICY}
+    extra_context = {'policy': QUALITY_POLICY, 'product_certificates': PRODUCT_CERTIFICATES}
 
     def get_breadcrumbs(self):
         return [('Сертификати', reverse('core:certificates'))]
