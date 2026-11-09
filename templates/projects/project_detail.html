@@ -4,6 +4,18 @@
 {% block content %}
 {% include 'partials/page_hero.html' %}
 
+{% if project.programme_logos %}
+<section class="section section--tight" aria-label="Финансиране от Европейския съюз">
+  <div class="container">
+    <div class="eu-logos" data-reveal>
+      {% for logo in project.programme_logos %}
+        <img{% if logo.square %} class="eu-logos__square"{% endif %} src="{% static logo.src %}" alt="{{ logo.alt }}" width="{{ logo.width }}" height="{{ logo.height }}" decoding="async">
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
 <section class="section section--flush" aria-labelledby="project-about-title">
   <div class="container split">
     <div class="prose">

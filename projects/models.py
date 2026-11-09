@@ -6,6 +6,22 @@ from django.utils.text import Truncator
 from core.models import SluggedModel
 
 
+# Publicity logos per programming period, keyed by the contract-number prefix
+# (taken from the company's previous website).
+PROGRAMME_LOGOS = {
+    'BG16RFPR': [  # 2021–2027, Програма „Конкурентоспособност и иновации в предприятията“
+        ('img/eu/eu-cofunded.png', 'Съфинансирано от Европейския съюз', 375, 79),
+        ('img/eu/pkip-2021-2027.png',
+         'Програма „Конкурентоспособност и иновации в предприятията“', 378, 105),
+    ],
+    'BG16RFOP': [  # 2014–2020, Оперативна програма „Иновации и конкурентоспособност“
+        ('img/eu/eu-erdf.png', 'Европейски съюз, Европейски фонд за регионално развитие', 437, 400),
+        ('img/eu/opic-2014-2020.png',
+         'Оперативна програма „Иновации и конкурентоспособност“', 437, 400),
+    ],
+}
+
+
 class ProjectQuerySet(models.QuerySet):
     def published(self):
         return self.filter(is_published=True)
@@ -64,6 +80,13 @@ class Project(SluggedModel):
     @property
     def is_finished(self):
         return bool(self.end_date and self.end_date < timezone.localdate())
+
+    @property
+    def programme_logos(self):
+        """The EU and programme logos required on this project's publicity."""
+        logos = PROGRAMME_LOGOS.get(self.contract_number[:8], [])
+        return [dict(src=src, alt=alt, width=w, height=h, square=w < 2 * h)
+                for src, alt, w, h in logos]
 
     @property
     def grant_share(self):

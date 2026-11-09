@@ -40,6 +40,20 @@ class ProjectPagesTests(TestCase):
         self.assertContains(response, 'Публична покана')
         self.assertEqual(project.grant_share, 70)
 
+    def test_eu_detail_shows_the_logos_of_its_programme_period(self):
+        for prefix, expected, absent in [
+            ('BG16RFPR', ['eu-cofunded.png', 'pkip-2021-2027.png'], 'opic-2014-2020.png'),
+            ('BG16RFOP', ['eu-erdf.png', 'opic-2014-2020.png'], 'pkip-2021-2027.png'),
+        ]:
+            project = Project.objects.filter(contract_number__startswith=prefix).first()
+            response = self.client.get(project.get_absolute_url())
+            for logo in expected:
+                self.assertContains(response, f'img/eu/{logo}')
+            self.assertNotContains(response, absent)
+
+    def test_realized_detail_has_no_programme_logos(self):
+        self.assertNotContains(self.client.get(self.client_project.get_absolute_url()), 'img/eu/')
+
     def test_funding_parts_add_up_to_the_grant(self):
         for project in Project.objects.filter(kind=Project.Kind.EU_FUNDED):
             self.assertEqual(project.eu_amount + project.national_amount, project.grant_amount)

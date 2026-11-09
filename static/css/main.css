@@ -727,6 +727,9 @@ a.tile:hover::before { transform: scaleX(1); }
 /* ---------- Projects ---------- */
 .eu-note { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding: 1.1rem 1.3rem; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; color: var(--muted); font-size: .92rem; }
 .eu-note img { flex-shrink: 0; border-radius: 3px; }
+.eu-logos { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: clamp(1.5rem, 5vw, 4rem); padding: clamp(1.2rem, 3vw, 2rem); background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+.eu-logos img { width: auto; height: clamp(56px, 9vw, 90px); max-width: 100%; object-fit: contain; }
+.eu-logos img.eu-logos__square { height: clamp(110px, 16vw, 150px); }
 .doc-list { display: grid; gap: .5rem; margin-top: 1rem; }
 .doc-list a { color: var(--accent-2); }
 .doc-list a:hover { color: var(--text); }
