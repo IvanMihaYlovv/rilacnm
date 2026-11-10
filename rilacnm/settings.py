@@ -196,10 +196,16 @@ SITE_URL = os.getenv('SITE_URL', 'https://www.rila-cnm.eu').rstrip('/')
 # The token from Search Console's "HTML tag" method; the meta tag is omitted when empty.
 GOOGLE_SITE_VERIFICATION = os.getenv('GOOGLE_SITE_VERIFICATION', '')
 
-# Outgoing email. Without EMAIL_HOST, messages are printed to the console instead of sent.
+# Outgoing email. Without EMAIL_HOST nothing is sent: in development each email is saved
+# as a file in sent-emails/, in production it is printed to the server log.
 EMAIL_HOST = os.getenv('EMAIL_HOST', '')
-EMAIL_BACKEND = ('django.core.mail.backends.smtp.EmailBackend' if EMAIL_HOST
-                 else 'django.core.mail.backends.console.EmailBackend')
+if EMAIL_HOST:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+elif DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = BASE_DIR / 'sent-emails'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
@@ -208,6 +214,10 @@ EMAIL_USE_SSL = env_bool('EMAIL_USE_SSL', default=EMAIL_PORT == 465)
 EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmaster@localhost')
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# Who receives an email for every inquiry and contact message (comma-separated).
+# Empty turns the notifications off; the submissions are still saved in the admin.
+CONTACT_NOTIFY_EMAILS = env_list('CONTACT_NOTIFY_EMAILS', 'cnm_rila@abv.bg')
 
 # File-based so the contact-form throttle is shared by all server worker processes;
 # an in-memory cache would give every worker its own counter.

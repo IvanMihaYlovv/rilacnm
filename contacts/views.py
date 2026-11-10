@@ -11,6 +11,7 @@ from core.seo import SeoPageMixin
 from core.utils import client_ip
 
 from .forms import ContactMessageForm, InquiryForm
+from .notifications import notify_staff
 
 THROTTLE_LIMIT = 5
 THROTTLE_WINDOW = 60 * 10  # seconds
@@ -63,6 +64,7 @@ def _handle(request, form_class, success_message):
         submission.ip_address = ip
         submission.user_agent = request.headers.get('User-Agent', '')[:300]
         submission.save()
+        notify_staff(submission)
 
     if _wants_json(request):
         return JsonResponse({'ok': True, 'message': success_message})

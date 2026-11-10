@@ -14,6 +14,7 @@ db.sqlite3-journal
 *.sqlite3.bak
 staticfiles/
 .cache/
+sent-emails/
 media/
 *.log
 
