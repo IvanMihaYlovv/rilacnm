@@ -23,20 +23,43 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
 
+def env_bool(name, default=False):
+    value = os.getenv(name)
+    return default if value is None else value.strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+def env_list(name, default=''):
+    return [item.strip() for item in os.getenv(name, default).split(',') if item.strip()]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', '0') == '1'
+DEBUG = env_bool('DJANGO_DEBUG')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
 if not SECRET_KEY:
     if not DEBUG:
         raise ImproperlyConfigured('Set DJANGO_SECRET_KEY, or DJANGO_DEBUG=1 for local development.')
     SECRET_KEY = 'django-insecure-local-development-only'
+elif not DEBUG and (len(SECRET_KEY) < 50 or SECRET_KEY.startswith('django-insecure')):
+    raise ImproperlyConfigured('DJANGO_SECRET_KEY is too weak: generate a random key of 50+ characters.')
 
-ALLOWED_HOSTS = [h for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h]
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1' if DEBUG else '')
+if not ALLOWED_HOSTS:
+    raise ImproperlyConfigured('Set DJANGO_ALLOWED_HOSTS, e.g. www.rila-cnm.eu,rila-cnm.eu')
+
+# Number of reverse proxies (nginx, the hosting platform) in front of Django.
+# 0 means visitors connect directly and REMOTE_ADDR is their real address.
+TRUSTED_PROXY_COUNT = int(os.getenv('DJANGO_TRUSTED_PROXY_COUNT', '0'))
+
+# Path of the admin site. Moving it off /admin/ cuts automated login attempts.
+ADMIN_URL = os.getenv('DJANGO_ADMIN_URL', 'admin/').strip('/') + '/'
+
+# Full origins (with https://) allowed to POST forms, e.g. https://www.rila-cnm.eu
+CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS')
 
 
 # Application definition
@@ -68,6 +91,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'axes.middleware.AxesMiddleware',
+    'core.middleware.SecurityHeadersMiddleware',
 ]
 
 ROOT_URLCONF = 'rilacnm.urls'
@@ -97,7 +121,7 @@ WSGI_APPLICATION = 'rilacnm.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.getenv('DJANGO_SQLITE_PATH', str(BASE_DIR / 'db.sqlite3')),
     }
 }
 
@@ -131,6 +155,7 @@ AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = 1  # hours
 AXES_LOCKOUT_PARAMETERS = [['username', 'ip_address']]
 AXES_RESET_ON_SUCCESS = True
+AXES_CLIENT_IP_CALLABLE = 'core.utils.client_ip'
 
 
 # Internationalization
@@ -150,10 +175,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.getenv('DJANGO_STATIC_ROOT', str(BASE_DIR / 'staticfiles'))
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.getenv('DJANGO_MEDIA_ROOT', str(BASE_DIR / 'media'))
+
+# Largest image the admin accepts (core.validators.validate_image_size).
+MAX_UPLOAD_MB = 10
+FILE_UPLOAD_PERMISSIONS = 0o644
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -162,25 +191,79 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Canonical public origin, used for absolute URLs in SEO tags and the sitemap.
-SITE_URL = os.environ.get('SITE_URL', 'https://www.rila-cnm.eu').rstrip('/')
+SITE_URL = os.getenv('SITE_URL', 'https://www.rila-cnm.eu').rstrip('/')
 
 # The token from Search Console's "HTML tag" method; the meta tag is omitted when empty.
-GOOGLE_SITE_VERIFICATION = os.environ.get('GOOGLE_SITE_VERIFICATION', '')
+GOOGLE_SITE_VERIFICATION = os.getenv('GOOGLE_SITE_VERIFICATION', '')
 
+# Outgoing email. Without EMAIL_HOST, messages are printed to the console instead of sent.
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+EMAIL_BACKEND = ('django.core.mail.backends.smtp.EmailBackend' if EMAIL_HOST
+                 else 'django.core.mail.backends.console.EmailBackend')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', default=EMAIL_PORT == 587)
+EMAIL_USE_SSL = env_bool('EMAIL_USE_SSL', default=EMAIL_PORT == 465)
+EMAIL_TIMEOUT = 10
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmaster@localhost')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# File-based so the contact-form throttle is shared by all server worker processes;
+# an in-memory cache would give every worker its own counter.
 CACHES = {
-    'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'},
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.getenv('DJANGO_CACHE_DIR', str(BASE_DIR / '.cache')),
+    },
 }
 
 # Security hardening that is safe in development as well.
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 X_FRAME_OPTIONS = 'DENY'
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True  # the forms send the token from the page, not from the cookie
+SESSION_COOKIE_AGE = 60 * 60 * 8  # admin sessions end after a working day
+
+# Every outside origin the pages use; extend it when embedding something new.
+# '{nonce}' becomes the per-request nonce (core.middleware.SecurityHeadersMiddleware).
+CONTENT_SECURITY_POLICY = {
+    'default-src': ["'self'"],
+    'script-src': ["'self'", '{nonce}', 'https://cdn.jsdelivr.net'],
+    'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net'],
+    'font-src': ["'self'", 'https://fonts.gstatic.com'],
+    'img-src': ["'self'", 'data:'],
+    'frame-src': ['https://www.google.com'],
+    'connect-src': ["'self'"],
+    'object-src': ["'none'"],
+    'base-uri': ["'self'"],
+    'form-action': ["'self'"],
+    'frame-ancestors': ["'none'"],
+}
+PERMISSIONS_POLICY = 'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+
+# Warnings and errors go to the server log (stderr) so production problems are visible.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {'console': {'class': 'logging.StreamHandler'}},
+    'root': {'handlers': ['console'], 'level': 'WARNING'},
+    'loggers': {
+        'django': {'handlers': ['console'], 'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+                   'propagate': False},
+    },
+}
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
+    # Behind nginx or a hosting proxy that terminates HTTPS, trust its X-Forwarded-Proto
+    # header; otherwise every request looks like plain HTTP and redirects forever.
+    if TRUSTED_PROXY_COUNT:
+        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     # Browsers remember HSTS, so start short and raise it once HTTPS is proven.
-    SECURE_HSTS_SECONDS = int(os.environ.get('DJANGO_HSTS_SECONDS', 60 * 60))
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('DJANGO_HSTS_PRELOAD') == '1'
+    SECURE_HSTS_SECONDS = int(os.getenv('DJANGO_HSTS_SECONDS', 60 * 60))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('DJANGO_HSTS_PRELOAD')
     SECURE_HSTS_PRELOAD = SECURE_HSTS_INCLUDE_SUBDOMAINS

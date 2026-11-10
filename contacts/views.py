@@ -8,17 +8,12 @@ from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
 from core.seo import SeoPageMixin
+from core.utils import client_ip
 
 from .forms import ContactMessageForm, InquiryForm
 
 THROTTLE_LIMIT = 5
 THROTTLE_WINDOW = 60 * 10  # seconds
-
-
-def _client_ip(request):
-    # Behind a reverse proxy, configure it to set REMOTE_ADDR correctly
-    # rather than trusting a client-supplied X-Forwarded-For here.
-    return request.META.get('REMOTE_ADDR')
 
 
 def _throttled(ip):
@@ -46,7 +41,7 @@ def _back_url(request):
 
 def _handle(request, form_class, success_message):
     form = form_class(request.POST)
-    ip = _client_ip(request)
+    ip = client_ip(request)
     back = _back_url(request)
 
     if _throttled(ip):

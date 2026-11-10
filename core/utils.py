@@ -30,3 +30,30 @@ def unique_slug(instance, value: str, field: str = 'slug') -> str:
         slug = f'{base[:max_length - len(suffix)]}{suffix}'
         n += 1
     return slug
+
+
+
+def client_ip(request):
+    """
+    The visitor's IP address, used for the contact-form throttle and the admin lockout.
+
+    Behind a reverse proxy REMOTE_ADDR is the proxy itself, so every visitor would share
+    one address. With DJANGO_TRUSTED_PROXY_COUNT=N the address N hops from the right of
+    X-Forwarded-For is used: our own proxy wrote that entry, while anything to its left
+    can be forged by the client.
+    """
+    from django.conf import settings
+    from django.core.exceptions import ValidationError
+    from django.core.validators import validate_ipv46_address
+
+    count = settings.TRUSTED_PROXY_COUNT
+    if count:
+        forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
+        hops = [h.strip() for h in forwarded.split(',') if h.strip()]
+        if len(hops) >= count:
+            try:
+                validate_ipv46_address(hops[-count])
+                return hops[-count]
+            except ValidationError:
+                pass
+    return request.META.get('REMOTE_ADDR')

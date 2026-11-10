@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.utils.text import Truncator
 
 from core.models import SluggedModel
+from core.validators import validate_documents, validate_image_size
 
 
 # Publicity logos per programming period, keyed by the contract-number prefix
@@ -55,10 +56,12 @@ class Project(SluggedModel):
         'текст за публичност', blank=True,
         help_text='Задължителното изречение за финансирането по договора.')
     documents = models.JSONField('документи', default=list, blank=True,
+                                 validators=[validate_documents],
                                  help_text='[{"title": "Публична покана", "url": "https://..."}]')
     start_date = models.DateField('начало', null=True, blank=True)
     end_date = models.DateField('край', null=True, blank=True)
-    image = models.ImageField('снимка', upload_to='projects/%Y/', blank=True)
+    image = models.ImageField('снимка', upload_to='projects/%Y/', blank=True,
+                              validators=[validate_image_size])
     image_alt = models.CharField('алтернативен текст', max_length=200, blank=True)
     is_published = models.BooleanField('публикуван', default=True)
     order = models.PositiveSmallIntegerField('подредба', default=0)

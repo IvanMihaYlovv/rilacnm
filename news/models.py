@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.models import SluggedModel
+from core.validators import validate_image_size
 
 
 class NewsQuerySet(models.QuerySet):
@@ -16,7 +17,8 @@ class News(SluggedModel):
     title = models.CharField('заглавие', max_length=200)
     excerpt = models.CharField('кратък текст', max_length=300)
     body = models.TextField('съдържание')
-    cover = models.ImageField('корица', upload_to='news/%Y/%m/', blank=True)
+    cover = models.ImageField('корица', upload_to='news/%Y/%m/', blank=True,
+                              validators=[validate_image_size])
     cover_alt = models.CharField('алтернативен текст', max_length=200, blank=True)
     published_at = models.DateTimeField('публикувана на', default=timezone.now, db_index=True)
     is_published = models.BooleanField('публикувана', default=True)

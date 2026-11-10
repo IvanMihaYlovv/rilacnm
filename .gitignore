@@ -2,12 +2,18 @@
 __pycache__/
 *.py[cod]
 .venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
 venv/
 
 # Django
 db.sqlite3
 db.sqlite3-journal
+*.sqlite3.bak
 staticfiles/
+.cache/
 media/
 *.log
 
@@ -15,6 +21,8 @@ media/
 .env
 .env.*
 !.env.example
+*.pem
+*.key
 
 # IDE
 .idea/

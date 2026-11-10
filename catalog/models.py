@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.text import Truncator
 
 from core.models import SluggedModel, TimeStampedModel
+from core.validators import validate_image_size
 
 
 KEY_SPECS = 3
@@ -117,7 +118,8 @@ class ProductImage(TimeStampedModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='images', verbose_name='продукт')
     image = models.ImageField('снимка', upload_to='products/%Y/%m/',
-                              width_field='width', height_field='height')
+                              width_field='width', height_field='height',
+                              validators=[validate_image_size])
     width = models.PositiveIntegerField(editable=False, null=True)
     height = models.PositiveIntegerField(editable=False, null=True)
     alt_text = models.CharField('алтернативен текст', max_length=200,
