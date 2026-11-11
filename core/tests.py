@@ -119,8 +119,8 @@ class EveryPageTests(SeededTestCase):
 
 class HomePageTests(SeededTestCase):
     def test_renders_with_bounded_queries(self):
-        # products, product images, categories, news, footer categories
-        with self.assertNumQueries(5):
+        # products, product images, categories, news, custom projects, footer categories
+        with self.assertNumQueries(6):
             response = self.client.get(reverse('core:home'))
         self.assertEqual(response.status_code, 200)
 
@@ -209,3 +209,19 @@ class NotFoundPageTests(SeededTestCase):
         self.assertEqual(response.status_code, 404)
         self.assertContains(response, 'noindex', status_code=404)
         self.assertContains(response, 'mailto:cnm_rila@abv.bg', status_code=404)
+
+
+class HomeCustomTileTests(SeededTestCase):
+    """The 4th catalog tile: "Примери за индивидуални проекти"."""
+
+    def test_links_to_the_custom_work_section_without_examples(self):
+        response = self.client.get('/')
+        self.assertContains(response, 'Примери за индивидуални проекти')
+        self.assertContains(response, 'href="/proekti/realizirani/#po-porachka"')
+
+    def test_links_to_the_examples_once_there_are_some(self):
+        from projects.models import Project
+        Project.objects.create(title='Навес', kind=Project.Kind.CLIENT, summary='-', is_custom=True)
+        response = self.client.get('/')
+        self.assertContains(response, 'href="/proekti/realizirani/?vid=po-porachka"')
+        self.assertContains(response, '1 проект<')

@@ -675,6 +675,8 @@ a.chip { display: inline-flex; align-items: center; gap: .5rem; }
 /* ---------- Tiles ---------- */
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
 .tiles--two { grid-template-columns: repeat(2, 1fr); }
+.tiles--catalog { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.tile.tile--custom { border-color: rgb(var(--tint) / .35); }
 .tiles > li { display: flex; }
 .tile {
   position: relative; overflow: hidden;
@@ -691,6 +693,7 @@ a.tile:hover::before { transform: scaleX(1); }
 .tile__text { color: var(--muted); margin-bottom: .6rem; }
 .tile .card__cta { color: var(--accent-2); }
 @media (max-width: 900px) { .tiles, .tiles--two { grid-template-columns: 1fr; } }
+@media (min-width: 561px) and (max-width: 900px) { .tiles--catalog { grid-template-columns: repeat(2, 1fr); } }
 
 .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .8rem; margin-top: 2rem; }
 .link-grid a { display: grid; gap: .2rem; height: 100%; padding: 1.1rem 1.3rem; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; transition: border-color .3s; }

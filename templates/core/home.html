@@ -69,7 +69,7 @@
       <p class="eyebrow" data-reveal>Каталог</p>
       <h2 class="section__title" id="categories-title" data-reveal>Какво произвеждаме</h2>
     </header>
-    <ul class="tiles">
+    <ul class="tiles tiles--catalog">
       {% for category in category_cards %}
         <li data-reveal>
           <a class="tile" href="{{ category.get_absolute_url }}">
@@ -80,6 +80,15 @@
           </a>
         </li>
       {% endfor %}
+      {# Made to order: the examples when there are some, otherwise how a custom order works. #}
+      <li data-reveal>
+        <a class="tile tile--custom" href="{% if custom_project_count %}{% url 'projects:realized' %}?vid=po-porachka{% else %}{% url 'projects:realized' %}#po-porachka{% endif %}">
+          <span class="tile__count">{% if custom_project_count %}{{ custom_project_count }} {% if custom_project_count == 1 %}проект{% else %}проекта{% endif %}{% else %}По поръчка{% endif %}</span>
+          <h3 class="tile__title">Примери за индивидуални проекти</h3>
+          <p class="tile__text">Изделия и конструкции по ваш чертеж, скица или идея — от единични бройки до серии.</p>
+          <span class="card__cta">Разгледайте <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+      </li>
     </ul>
   </div>
 </section>

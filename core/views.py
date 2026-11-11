@@ -8,6 +8,7 @@ from django.views.generic import RedirectView, TemplateView
 
 from catalog.models import Category, Product
 from news.models import News
+from projects.models import Project
 
 from .content import (ABOUT_TEXT, CAPACITY, COMPANY, FAQ, HISTORY, LEGACY_PAGES, LEGACY_PRODUCTS,
                       MISSION, PRODUCT_CERTIFICATES, QUALITY_POLICY, SERVICES, SERVICES_BY_SLUG, STATS)
@@ -43,6 +44,7 @@ class HomeView(SitePageView):
             slider_categories=[c for c in categories if c.pk in category_ids],
             products=products,
             news=list(News.objects.published()[:3]),
+            custom_project_count=Project.objects.custom_examples().count(),
             services=SERVICES,
             stats=STATS,
         )
