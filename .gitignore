@@ -32,3 +32,6 @@ media/
 # OS
 Thumbs.db
 .DS_Store
+
+# Full-size source photos (web copies live in media/)
+originals/

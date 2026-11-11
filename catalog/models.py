@@ -114,10 +114,15 @@ class Product(SluggedModel):
         return next((i for i in images if i.is_primary), images[0] if images else None)
 
 
+def product_image_path(instance, filename):
+    # One folder per product, so the media directory mirrors the catalog.
+    return f'products/{instance.product.slug}/{filename}'
+
+
 class ProductImage(TimeStampedModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='images', verbose_name='продукт')
-    image = models.ImageField('снимка', upload_to='products/%Y/%m/',
+    image = models.ImageField('снимка', upload_to=product_image_path,
                               width_field='width', height_field='height',
                               validators=[validate_image_size])
     width = models.PositiveIntegerField(editable=False, null=True)
