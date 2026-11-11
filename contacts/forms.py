@@ -64,9 +64,10 @@ class InquiryForm(SubmissionForm):
 
     attachments = MultipleFileField(
         label='Чертежи, скици или снимки', required=False,
-        help_text=(f'По желание. До {settings.INQUIRY_MAX_FILES} файла, до '
-                   f'{settings.INQUIRY_MAX_FILE_MB} MB всеки: PDF, DWG, DXF, STEP, JPG, PNG, ZIP и др.'),
+        help_text=(f'По желание · до {settings.INQUIRY_MAX_FILES} файла, '
+                   f'до {settings.INQUIRY_MAX_FILE_MB} MB всеки'),
     )
+    attachment_types = 'PDF, DWG, DXF, STEP, JPG, PNG, ZIP и др.'
 
     class Meta:
         model = Inquiry

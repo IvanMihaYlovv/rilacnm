@@ -14,7 +14,7 @@
       <label class="dropzone" for="{{ field.id_for_label }}">
         <svg class="dropzone__icon" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.1 12.2 20.3a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>
         <span class="dropzone__title">{{ field.label }}</span>
-        <span class="dropzone__hint" id="{{ field.id_for_label }}-hint">{{ field.help_text }}</span>
+        <span class="dropzone__hint" id="{{ field.id_for_label }}-hint">{{ field.help_text }}<br>{{ form.attachment_types }}</span>
         <span class="dropzone__action">Изберете файлове</span>
       </label>
       {{ field }}

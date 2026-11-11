@@ -493,10 +493,10 @@ html.lenis, html.lenis body { height: auto; }
   border: 1.5px dashed var(--line); border-radius: 12px; background: var(--bg-2); color: var(--muted);
   transition: border-color .3s, background-color .3s, box-shadow .3s;
 }
-.dropzone__icon { color: var(--accent-2); }
-.dropzone__title { color: var(--text); font-weight: 600; }
-.dropzone__hint { font-size: .82rem; }
-.dropzone__action { margin-top: .35rem; font-size: .85rem; font-weight: 600; color: var(--accent-2); text-decoration: underline; text-underline-offset: 3px; }
+.field .dropzone__icon { color: var(--accent-2); }
+.field label .dropzone__title { color: var(--text); font-weight: 600; }
+.field label .dropzone__hint { color: var(--muted); font-size: .82rem; line-height: 1.55; text-wrap: balance; }
+.field label .dropzone__action { margin-top: .35rem; font-size: .85rem; font-weight: 600; color: var(--accent-2); text-decoration: underline; text-underline-offset: 3px; }
 .field--file:hover .dropzone, .field--file.is-dragover .dropzone { border-color: var(--accent); background: rgb(var(--tint) / .06); }
 .field--file:focus-within .dropzone { border-color: var(--accent); box-shadow: 0 0 0 4px rgb(var(--tint) / .15); }
 .field--file.has-error .dropzone { border-color: #b3261e; }
