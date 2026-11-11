@@ -4,10 +4,13 @@ from django.views.generic import DetailView, TemplateView
 
 from contacts.forms import InquiryForm
 from core.seo import SeoPageMixin, item_list_node, product_node
+from projects.models import Project
 
 from .models import Category, Product
 
 RELATED_LIMIT = 8
+# Custom-made projects shown under the catalog, before the "made to order" call to action.
+CUSTOM_EXAMPLES_LIMIT = 4
 
 
 def _product_entries(products):
@@ -37,6 +40,9 @@ class CatalogView(SeoPageMixin, TemplateView):
         self.categories = self.get_categories()
         ctx = super().get_context_data(**kwargs)
         ctx['categories'] = self.categories
+        examples = list(Project.objects.custom_examples()[:CUSTOM_EXAMPLES_LIMIT + 1])
+        ctx['custom_examples'] = examples[:CUSTOM_EXAMPLES_LIMIT]
+        ctx['more_custom_examples'] = len(examples) > CUSTOM_EXAMPLES_LIMIT
         return ctx
 
     def get_schema_nodes(self):

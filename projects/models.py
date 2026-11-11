@@ -27,6 +27,10 @@ class ProjectQuerySet(models.QuerySet):
     def published(self):
         return self.filter(is_published=True)
 
+    def custom_examples(self):
+        """Published client projects made to the client's own drawing or idea."""
+        return self.published().filter(kind=Project.Kind.CLIENT, is_custom=True)
+
 
 class Project(SluggedModel):
     SLUG_SOURCE = 'title'

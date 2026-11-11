@@ -16,8 +16,8 @@ class CatalogTests(TestCase):
             self.assertContains(response, f'href="{product.get_absolute_url()}"')
 
     def test_list_groups_by_category_with_bounded_queries(self):
-        # categories, products, product images, footer categories
-        with self.assertNumQueries(4):
+        # categories, products, product images, custom project examples, footer categories
+        with self.assertNumQueries(5):
             self.client.get('/produkti/')
 
     def test_category_page_shows_only_its_products(self):
@@ -81,3 +81,33 @@ class ProductPageTests(TestCase):
 
     def test_sitemap_lists_products(self):
         self.assertContains(self.client.get('/sitemap.xml'), self.product.get_absolute_url())
+
+
+class CustomExamplesTests(TestCase):
+    """"Примери за индивидуални проекти" on the catalog page."""
+
+    def make(self, title, **kwargs):
+        from projects.models import Project
+        return Project.objects.create(title=title, kind=Project.Kind.CLIENT, summary='-', **kwargs)
+
+    def test_shows_only_published_custom_projects_before_the_cta(self):
+        self.make('Навес по чертеж', is_custom=True)
+        self.make('Стандартна доставка')
+        self.make('Скрит индивидуален', is_custom=True, is_published=False)
+        html = self.client.get('/produkti/').content.decode()
+        self.assertIn('Примери за индивидуални проекти', html)
+        self.assertIn('Навес по чертеж', html)
+        self.assertNotIn('Стандартна доставка', html)
+        self.assertNotIn('Скрит индивидуален', html)
+        self.assertLess(html.index('Примери за индивидуални проекти'), html.index('Не намирате точния размер?'))
+
+    def test_hidden_without_custom_projects(self):
+        self.make('Стандартна доставка')
+        self.assertNotContains(self.client.get('/produkti/'), 'Примери за индивидуални проекти')
+
+    def test_links_to_the_full_list_when_there_are_more(self):
+        for i in range(5):
+            self.make(f'Индивидуален {i}', is_custom=True)
+        response = self.client.get('/produkti/')
+        self.assertEqual(len(response.context['custom_examples']), 4)
+        self.assertContains(response, 'href="/proekti/realizirani/?vid=po-porachka"')

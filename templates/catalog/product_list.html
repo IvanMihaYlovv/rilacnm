@@ -29,5 +29,27 @@
   </section>
 {% endfor %}
 
+{% if custom_examples %}
+<section class="section section--flush custom-examples" id="individualni-proekti" aria-labelledby="custom-examples-title">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow" data-reveal>По поръчка</p>
+        <h2 class="section__title" id="custom-examples-title" data-reveal>Примери за индивидуални проекти</h2>
+        <p class="section__lead" data-reveal>Изделия и конструкции, които сме произвели по чертеж или идея на клиента.</p>
+      </div>
+      {% if more_custom_examples %}
+        <a class="btn btn--ghost btn--sm" href="{% url 'projects:realized' %}?vid=po-porachka" data-reveal>Всички индивидуални проекти</a>
+      {% endif %}
+    </header>
+    <div class="projects__list">
+      {% for project in custom_examples %}
+        {% include 'partials/project_card.html' with heading='h3' %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
 {% include 'partials/cta.html' with cta_title='Не намирате точния размер?' cta_text='Произвеждаме и по ваш проект — изпратете ни чертеж или скица.' %}
 {% endblock %}
