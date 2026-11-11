@@ -1,6 +1,17 @@
+import os
+import uuid
+
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 from django.db import models
+from django.urls import reverse
 
 from core.models import TimeStampedModel
+
+
+def private_storage():
+    """Storage outside MEDIA_ROOT with no public URL. A callable, so the path stays out of migrations."""
+    return FileSystemStorage(location=settings.PRIVATE_MEDIA_ROOT, base_url=None)
 
 
 class Submission(TimeStampedModel):
@@ -39,3 +50,34 @@ class ContactMessage(Submission):
     class Meta(Submission.Meta):
         verbose_name = 'контактно съобщение'
         verbose_name_plural = 'контактни съобщения'
+
+
+def _attachment_path(instance, filename):
+    # A random name on disk: the visitor's file name is kept only in the database.
+    ext = os.path.splitext(filename)[1].lower()
+    return f'inquiries/{instance.inquiry_id}/{uuid.uuid4().hex}{ext}'
+
+
+class InquiryAttachment(models.Model):
+    """A drawing, sketch or photo the visitor attached to a quote request."""
+
+    inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE, related_name='attachments',
+                                verbose_name='запитване')
+    file = models.FileField('файл', upload_to=_attachment_path, storage=private_storage)
+    original_name = models.CharField('име на файла', max_length=255)
+    size = models.PositiveIntegerField('размер (байта)')
+
+    class Meta:
+        verbose_name = 'прикачен файл'
+        verbose_name_plural = 'прикачени файлове'
+        ordering = ['pk']
+
+    def __str__(self):
+        return self.original_name
+
+    def get_download_url(self):
+        return reverse('contacts:attachment', args=[self.pk])
+
+    def delete(self, *args, **kwargs):
+        self.file.delete(save=False)
+        return super().delete(*args, **kwargs)

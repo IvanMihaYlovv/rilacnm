@@ -16,6 +16,7 @@ staticfiles/
 .cache/
 sent-emails/
 media/
+private/
 *.log
 
 # Secrets

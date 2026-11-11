@@ -1,7 +1,9 @@
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db import transaction
 from django.core.cache import cache
-from django.http import JsonResponse
-from django.shortcuts import redirect
+from django.http import FileResponse, Http404, JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
@@ -11,6 +13,7 @@ from core.seo import SeoPageMixin
 from core.utils import client_ip
 
 from .forms import ContactMessageForm, InquiryForm
+from .models import InquiryAttachment
 from .notifications import notify_staff
 
 THROTTLE_LIMIT = 5
@@ -41,7 +44,7 @@ def _back_url(request):
 
 
 def _handle(request, form_class, success_message):
-    form = form_class(request.POST)
+    form = form_class(request.POST, request.FILES)
     ip = client_ip(request)
     back = _back_url(request)
 
@@ -63,7 +66,10 @@ def _handle(request, form_class, success_message):
         submission = form.save(commit=False)
         submission.ip_address = ip
         submission.user_agent = request.headers.get('User-Agent', '')[:300]
-        submission.save()
+        with transaction.atomic():
+            submission.save()
+            if hasattr(form, 'save_attachments'):
+                form.save_attachments(submission)
         notify_staff(submission)
 
     if _wants_json(request):
@@ -101,3 +107,20 @@ def inquiry(request):
 def contact(request):
     return _handle(request, ContactMessageForm,
                    'Съобщението е изпратено. Ще се свържем с вас съвсем скоро.')
+
+
+@staff_member_required
+def attachment(request, pk):
+    """Staff-only download of a file attached to an inquiry. Always a download, never shown inline."""
+    if not request.user.has_perm('contacts.view_inquiry'):
+        raise Http404
+    item = get_object_or_404(InquiryAttachment, pk=pk)
+    try:
+        handle = item.file.open('rb')
+    except FileNotFoundError:
+        raise Http404
+    response = FileResponse(handle, as_attachment=True, filename=item.original_name,
+                            content_type='application/octet-stream')
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['Cache-Control'] = 'private, no-store'
+    return response

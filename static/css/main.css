@@ -485,6 +485,25 @@ html.lenis, html.lenis body { height: auto; }
 .field input:focus + label, .field textarea:focus + label { color: var(--accent-2); }
 .field label span { color: var(--accent-2); }
 .field.has-error input, .field.has-error textarea, .field.has-error select { border-color: #b3261e; }
+.field--file { display: grid; }
+.field--file > input[type="file"] { grid-area: 1 / 1; z-index: 1; width: 100%; height: 100%; opacity: 0; cursor: pointer; padding: 0; border: 0; }
+.field label.dropzone {
+  grid-area: 1 / 1; position: static; transform: none; pointer-events: none;
+  display: grid; justify-items: center; gap: .3rem; padding: 1.4rem 1rem; text-align: center;
+  border: 1.5px dashed var(--line); border-radius: 12px; background: var(--bg-2); color: var(--muted);
+  transition: border-color .3s, background-color .3s, box-shadow .3s;
+}
+.dropzone__icon { color: var(--accent-2); }
+.dropzone__title { color: var(--text); font-weight: 600; }
+.dropzone__hint { font-size: .82rem; }
+.dropzone__action { margin-top: .35rem; font-size: .85rem; font-weight: 600; color: var(--accent-2); text-decoration: underline; text-underline-offset: 3px; }
+.field--file:hover .dropzone, .field--file.is-dragover .dropzone { border-color: var(--accent); background: rgb(var(--tint) / .06); }
+.field--file:focus-within .dropzone { border-color: var(--accent); box-shadow: 0 0 0 4px rgb(var(--tint) / .15); }
+.field--file.has-error .dropzone { border-color: #b3261e; }
+.dropzone__list { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; gap: .35rem; }
+.dropzone__list:empty { display: none; }
+.dropzone__list li { display: flex; justify-content: space-between; gap: 1rem; padding: .5rem .8rem; border-radius: 8px; background: var(--bg-2); font-size: .88rem; overflow-wrap: anywhere; }
+.dropzone__list li span:last-child { color: var(--muted); white-space: nowrap; }
 .field__error { min-height: 0; color: #b3261e; font-size: .82rem; margin-top: .3rem; }
 .field__error:empty { display: none; }
 .form__status { margin-top: 1rem; font-weight: 600; }

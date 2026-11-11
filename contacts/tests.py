@@ -1,4 +1,11 @@
+import shutil
+import tempfile
 from unittest.mock import patch
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
+from django.core.files.storage import FileSystemStorage
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.core import mail
 from django.core.cache import cache
@@ -7,7 +14,7 @@ from django.urls import reverse
 
 from catalog.models import Category, Product
 
-from .models import ContactMessage, Inquiry
+from .models import ContactMessage, Inquiry, InquiryAttachment
 
 JSON = {'HTTP_ACCEPT': 'application/json'}
 
@@ -129,3 +136,94 @@ class NotificationTests(TestCase):
         self.post_message()
         self.assertEqual(mail.outbox, [])
         self.assertTrue(ContactMessage.objects.exists())
+
+
+class InquiryAttachmentTests(TestCase):
+    """Drawings and photos attached to a quote request: private, validated, emailed."""
+
+    def setUp(self):
+        cache.clear()
+        self.tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        field = InquiryAttachment._meta.get_field('file')
+        patcher = patch.object(field, 'storage', FileSystemStorage(location=self.tmp))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def post(self, *files, **overrides):
+        data = {'inq-name': 'Иван', 'inq-email': 'ivan@example.com', 'inq-message': 'По чертеж, моля.',
+                'inq-attachments': list(files)}
+        data.update(overrides)
+        return self.client.post(reverse('contacts:inquiry'), data, **JSON)
+
+    def test_files_are_saved_privately_and_emailed(self):
+        response = self.post(SimpleUploadedFile('чертеж.pdf', b'%PDF-1.4 test'),
+                             SimpleUploadedFile('snimka.JPG', b'jpeg'))
+        self.assertTrue(response.json()['ok'])
+        names = [a.original_name for a in Inquiry.objects.get().attachments.all()]
+        self.assertEqual(names, ['чертеж.pdf', 'snimka.JPG'])
+        stored = InquiryAttachment.objects.first().file.name
+        self.assertTrue(stored.startswith('inquiries/') and stored.endswith('.pdf'))
+        self.assertNotIn('чертеж', stored)
+        email = mail.outbox[0]
+        self.assertIn('Прикачени файлове (2)', email.body)
+        self.assertEqual([a[0] for a in email.attachments], ['чертеж.pdf', 'snimka.JPG'])
+
+    def test_inquiry_without_files_still_works(self):
+        self.assertTrue(self.post().json()['ok'])
+        self.assertFalse(InquiryAttachment.objects.exists())
+
+    def test_rejects_unsafe_file_types(self):
+        for name in ['page.html', 'logo.svg', 'run.exe', 'noext']:
+            response = self.post(SimpleUploadedFile(name, b'x'))
+            self.assertEqual(response.status_code, 400, name)
+            self.assertIn('attachments', response.json()['errors'])
+        self.assertFalse(Inquiry.objects.exists())
+
+    @override_settings(INQUIRY_MAX_FILE_MB=1)
+    def test_rejects_too_large_file(self):
+        response = self.post(SimpleUploadedFile('big.pdf', b'x' * (1024 * 1024 + 1)))
+        self.assertEqual(response.status_code, 400)
+
+    @override_settings(INQUIRY_MAX_FILES=2)
+    def test_rejects_too_many_files(self):
+        response = self.post(*[SimpleUploadedFile(f'{i}.pdf', b'x') for i in range(3)])
+        self.assertEqual(response.status_code, 400)
+
+    @override_settings(INQUIRY_EMAIL_ATTACH_MB=0)
+    def test_large_files_are_not_attached_to_the_email(self):
+        self.post(SimpleUploadedFile('plan.pdf', b'%PDF'))
+        email = mail.outbox[0]
+        self.assertEqual(email.attachments, [])
+        self.assertIn('изтеглете ги от администрацията', email.body)
+
+    def test_download_is_staff_only_and_forced(self):
+        self.post(SimpleUploadedFile('чертеж.pdf', b'%PDF-1.4 test'))
+        url = InquiryAttachment.objects.get().get_download_url()
+        self.assertEqual(self.client.get(url).status_code, 302)  # to the admin login
+
+        User = get_user_model()
+        staff = User.objects.create_user('staff', password='x', is_staff=True)
+        self.client.force_login(staff)
+        self.assertEqual(self.client.get(url).status_code, 404)  # staff without permission
+
+        staff.user_permissions.add(Permission.objects.get(codename='view_inquiry'))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('attachment;', response['Content-Disposition'])
+        self.assertEqual(response['Content-Type'], 'application/octet-stream')
+        self.assertEqual(b''.join(response.streaming_content), b'%PDF-1.4 test')
+
+    def test_admin_lists_the_files(self):
+        self.post(SimpleUploadedFile('чертеж.pdf', b'%PDF'))
+        admin_user = get_user_model().objects.create_superuser('admin', password='x')
+        self.client.force_login(admin_user)
+        inquiry = Inquiry.objects.get()
+        response = self.client.get(reverse('admin:contacts_inquiry_change', args=[inquiry.pk]))
+        self.assertContains(response, 'чертеж.pdf')
+        self.assertContains(response, inquiry.attachments.get().get_download_url())
+
+    def test_form_is_multipart(self):
+        response = self.client.get(reverse('contacts:page'))
+        self.assertContains(response, 'enctype="multipart/form-data"')
+        self.assertContains(response, 'name="inq-attachments"')

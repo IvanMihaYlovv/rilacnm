@@ -146,6 +146,33 @@
   });
 
   /* ------------------------------------------------------------------
+     File fields: list the chosen files with their sizes
+  ------------------------------------------------------------------ */
+  const formatSize = (bytes) => (bytes < 1024 * 1024
+    ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+    : `${(bytes / 1024 / 1024).toFixed(1).replace('.', ',')} MB`);
+
+  $$('[data-file-field]').forEach((field) => {
+    const input = $('input[type="file"]', field);
+    const list = $('[data-file-list]', field);
+    const render = () => {
+      list.replaceChildren(...Array.from(input.files, (file) => {
+        const li = document.createElement('li');
+        const name = document.createElement('span');
+        const size = document.createElement('span');
+        name.textContent = file.name;
+        size.textContent = formatSize(file.size);
+        li.append(name, size);
+        return li;
+      }));
+    };
+    input.addEventListener('change', render);
+    input.closest('form')?.addEventListener('reset', () => setTimeout(render));
+    ['dragenter', 'dragover'].forEach((t) => input.addEventListener(t, () => field.classList.add('is-dragover')));
+    ['dragleave', 'drop'].forEach((t) => input.addEventListener(t, () => field.classList.remove('is-dragover')));
+  });
+
+  /* ------------------------------------------------------------------
      AJAX forms (fall back to a normal POST + redirect without JS)
   ------------------------------------------------------------------ */
   $$('[data-ajax-form]').forEach((form) => {

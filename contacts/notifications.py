@@ -3,6 +3,7 @@ import logging
 
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.template.defaultfilters import filesizeformat
 from django.urls import reverse
 
 from .models import Inquiry
@@ -29,6 +30,10 @@ def _body(submission):
         lines.append(f'Продукт: {submission.product or "не е избран / по проект"}')
         if submission.quantity:
             lines.append(f'Количество: {submission.quantity}')
+        files = list(submission.attachments.all())
+        if files:
+            lines.append(f'Прикачени файлове ({len(files)}):')
+            lines += [f'  • {f.original_name} ({filesizeformat(f.size)})' for f in files]
     elif submission.subject:
         lines.append(f'Тема: {submission.subject}')
     lines += [
@@ -42,6 +47,18 @@ def _body(submission):
         f'В администрацията: {_admin_url(submission)}',
     ]
     return '\n'.join(lines)
+
+
+def _attach_files(email, inquiry):
+    """Attach the visitor's files when they are small enough; otherwise the admin link is enough."""
+    files = list(inquiry.attachments.all())
+    if not files or sum(f.size for f in files) > settings.INQUIRY_EMAIL_ATTACH_MB * 1024 * 1024:
+        if files:
+            email.body += '\nФайловете са големи за имейл: изтеглете ги от администрацията.'
+        return
+    for f in files:
+        with f.file.open('rb') as handle:
+            email.attach(f.original_name, handle.read())
 
 
 def notify_staff(submission):
@@ -66,6 +83,8 @@ def notify_staff(submission):
         to=recipients,
         reply_to=[submission.email],
     )
+    if isinstance(submission, Inquiry):
+        _attach_files(email, submission)
     try:
         email.send()
     except Exception:  # SMTP down, wrong password, timeout...

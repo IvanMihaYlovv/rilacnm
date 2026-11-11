@@ -1,4 +1,4 @@
-<form class="form" method="post" action="{% url 'contacts:inquiry' %}" data-ajax-form data-prefix="{{ form.prefix }}" novalidate>
+<form class="form" method="post" action="{% url 'contacts:inquiry' %}" data-ajax-form data-prefix="{{ form.prefix }}" enctype="multipart/form-data" novalidate>
   {% csrf_token %}
   {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
   <div class="form__grid">
@@ -9,6 +9,19 @@
     {% include 'partials/field.html' with field=form.product %}
     {% include 'partials/field.html' with field=form.quantity %}
     {% include 'partials/field.html' with field=form.message wide=True %}
+    {% with field=form.attachments %}
+    <div class="field field--wide field--file" data-file-field>
+      <label class="dropzone" for="{{ field.id_for_label }}">
+        <svg class="dropzone__icon" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.1 12.2 20.3a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>
+        <span class="dropzone__title">{{ field.label }}</span>
+        <span class="dropzone__hint" id="{{ field.id_for_label }}-hint">{{ field.help_text }}</span>
+        <span class="dropzone__action">Изберете файлове</span>
+      </label>
+      {{ field }}
+      <ul class="dropzone__list" data-file-list aria-live="polite"></ul>
+      <p class="field__error" data-error-for="{{ field.html_name }}" id="{{ field.id_for_label }}-error"></p>
+    </div>
+    {% endwith %}
   </div>
   <div class="hp" aria-hidden="true">{{ form.website }}</div>
   <button class="btn btn--accent btn--block" type="submit" data-magnetic>Изпратете запитване</button>

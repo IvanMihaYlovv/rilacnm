@@ -184,6 +184,15 @@ MEDIA_ROOT = os.getenv('DJANGO_MEDIA_ROOT', str(BASE_DIR / 'media'))
 MAX_UPLOAD_MB = 10
 FILE_UPLOAD_PERMISSIONS = 0o644
 
+# Files visitors attach to a quote request (drawings, sketches, photos). Kept outside
+# MEDIA_ROOT so they are never public: only staff download them, through the admin.
+PRIVATE_MEDIA_ROOT = os.getenv('DJANGO_PRIVATE_MEDIA_ROOT', str(BASE_DIR / 'private'))
+INQUIRY_MAX_FILES = 5
+INQUIRY_MAX_FILE_MB = 10
+INQUIRY_MAX_TOTAL_MB = 25
+# Files up to this total size are attached to the notification email as well.
+INQUIRY_EMAIL_ATTACH_MB = 10
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
