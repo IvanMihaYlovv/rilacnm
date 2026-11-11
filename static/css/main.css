@@ -468,6 +468,7 @@ html.lenis, html.lenis body { height: auto; }
 .form__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.4rem; }
 .field { position: relative; }
 .field--wide { grid-column: 1 / -1; }
+.field select { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 .field input, .field select, .field textarea {
   width: 100%; padding: 1.45rem 1rem .55rem; border: 1px solid var(--line); border-radius: 12px;
   background: var(--bg-2); outline: none; transition: border-color .3s, box-shadow .3s; appearance: none;
