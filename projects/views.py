@@ -5,6 +5,18 @@ from core.seo import SeoPageMixin, item_list_node
 
 from .models import Project
 
+# How a custom order goes, shown in the "Изработка по поръчка" section of the realized projects page.
+CUSTOM_STEPS = [
+    ('Изпращате идея или чертеж',
+     'Скица на ръка, PDF или CAD файл (DWG, DXF, STEP), снимка на образец — каквото имате.'),
+    ('Инженерите ни предлагат решение',
+     'Уточняваме материала, размерите и покритието и ви изпращаме оферта с цена и срок.'),
+    ('Произвеждаме в завода в Рила',
+     'Рязане, огъване, заваряване и прахово боядисване — всичко под един покрив.'),
+    ('Доставяме до обекта',
+     'Организираме доставка до обекта ви навсякъде в България.'),
+]
+
 
 class ProjectListView(SeoPageMixin, ListView):
     template_name = 'projects/project_list.html'
@@ -45,9 +57,43 @@ class RealizedProjectListView(ProjectListView):
     page_description = ('Реализирани проекти на РИЛА-СНМ: метални конструкции и изделия, '
                         'произведени за общини и фирми в завода ни в гр. Рила.')
 
+    # ?vid=<slug> narrows the list; links, not script, so filtered views can be shared.
+    FILTERS = [
+        ('', 'Всички', None),
+        ('standartni', 'Стандартни', False),
+        ('po-porachka', 'По поръчка', True),
+    ]
+
+    def get_active_filter(self):
+        value = self.request.GET.get('vid', '')
+        return value if value in {slug for slug, _, _ in self.FILTERS} else ''
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        is_custom = dict((slug, flag) for slug, _, flag in self.FILTERS)[self.get_active_filter()]
+        return qs if is_custom is None else qs.filter(is_custom=is_custom)
+
     def get_noindex(self):
         # An empty page would only be thin content; it joins the index with its first project.
-        return not self.object_list
+        # Filtered views repeat the full list, so only the unfiltered page is indexed.
+        return not self.object_list or bool(self.get_active_filter())
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        everything = super().get_queryset()
+        counts = {'': everything.count(), 'standartni': everything.filter(is_custom=False).count()}
+        counts['po-porachka'] = counts[''] - counts['standartni']
+        active = self.get_active_filter()
+        base = reverse(self.list_url_name)
+        ctx.update(
+            # Hidden until the first project is published: three zero counts look broken.
+            filters=[dict(slug=slug, label=label, count=counts[slug], active=slug == active,
+                          url=f'{base}?vid={slug}' if slug else base)
+                     for slug, label, _ in self.FILTERS] if counts[''] else [],
+            active_filter=active,
+            custom_steps=CUSTOM_STEPS,
+        )
+        return ctx
 
 
 class ProjectDetailView(SeoPageMixin, DetailView):

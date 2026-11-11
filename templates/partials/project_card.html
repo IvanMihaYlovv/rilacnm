@@ -1,6 +1,7 @@
 {% load site_tags %}<article class="project" data-reveal aria-labelledby="project-{{ project.pk }}">
   <div class="project__meta">
     <span class="project__kind">{{ project.get_kind_display }}</span>
+    {% if project.is_custom and project.kind == 'client' %}<span class="project__kind project__kind--custom">По поръчка</span>{% endif %}
     {% if project.start_date %}
       <span><time datetime="{{ project.start_date|date:'Y-m-d' }}">{{ project.start_date|date:"Y" }}</time>{% if project.end_date %} – <time datetime="{{ project.end_date|date:'Y-m-d' }}">{{ project.end_date|date:"Y" }}</time>{% endif %}</span>
     {% endif %}

@@ -40,6 +40,10 @@ class Project(SluggedModel):
     summary = models.TextField('резюме')
     body = models.TextField('подробно описание', blank=True,
                             help_text='Абзаците се разделят с празен ред.')
+    is_custom = models.BooleanField(
+        'по поръчка', default=False,
+        help_text='Изработено по чертеж или идея на клиента, а не стандартен продукт от каталога. '
+                  'Само за реализирани проекти.')
     client = models.CharField('възложител', max_length=160, blank=True)
     location = models.CharField('местоположение', max_length=160, blank=True)
     programme = models.CharField('програма', max_length=220, blank=True)

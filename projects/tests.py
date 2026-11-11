@@ -88,3 +88,65 @@ class EmptyRealizedProjectsTests(TestCase):
         Project.objects.create(title='Навес', kind=Project.Kind.CLIENT, summary='x')
         self.assertNotContains(self.client.get('/proekti/realizirani/'), 'content="noindex')
         self.assertContains(self.client.get('/sitemap.xml'), '/proekti/realizirani/<')
+
+
+class RealizedFilterTests(TestCase):
+    """Всички / Стандартни / По поръчка filter and the custom-work section."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.standard = Project.objects.create(title='Контейнери за община Рила', kind=Project.Kind.CLIENT,
+                                              summary='Серия стандартни контейнери.')
+        cls.custom = Project.objects.create(title='Навес по чертеж на клиента', kind=Project.Kind.CLIENT,
+                                            summary='Метален навес.', is_custom=True)
+        Project.objects.create(title='Скрит проект', kind=Project.Kind.CLIENT, summary='-',
+                               is_custom=True, is_published=False)
+
+    def get(self, vid=None):
+        return self.client.get('/proekti/realizirani/', {'vid': vid} if vid else {})
+
+    def test_all_shows_both_with_counts(self):
+        response = self.get()
+        self.assertContains(response, self.standard.title)
+        self.assertContains(response, self.custom.title)
+        counts = {f['slug']: f['count'] for f in response.context['filters']}
+        self.assertEqual(counts, {'': 2, 'standartni': 1, 'po-porachka': 1})
+        self.assertContains(response, 'class="chip is-active"', count=1)
+        self.assertNotContains(response, 'noindex')
+
+    def test_custom_filter(self):
+        response = self.get('po-porachka')
+        self.assertContains(response, self.custom.title)
+        self.assertNotContains(response, self.standard.title)
+        self.assertContains(response, 'По поръчка</span>')  # the card badge
+        self.assertContains(response, 'noindex')
+
+    def test_standard_filter(self):
+        response = self.get('standartni')
+        self.assertContains(response, self.standard.title)
+        self.assertNotContains(response, self.custom.title)
+
+    def test_unknown_filter_shows_everything(self):
+        response = self.get('<script>')
+        self.assertContains(response, self.standard.title)
+        self.assertContains(response, self.custom.title)
+
+    def test_empty_filter_has_its_own_message(self):
+        Project.objects.filter(is_custom=True).delete()
+        self.assertContains(self.get('po-porachka'), 'Няма проекти в този раздел')
+
+    def test_custom_work_section_links_to_the_form(self):
+        response = self.get()
+        self.assertContains(response, 'Изработка по поръчка')
+        self.assertContains(response, 'href="/kontakti/#formulyar"')
+
+    def test_eu_page_has_no_filter_or_section(self):
+        response = self.client.get('/proekti/evropeysko-finansirane/')
+        self.assertNotContains(response, 'Филтър на проектите')
+        self.assertNotContains(response, 'Изработка по поръчка')
+
+    def test_filter_is_hidden_until_there_are_projects(self):
+        Project.objects.all().delete()
+        response = self.get()
+        self.assertNotContains(response, 'Филтър на проектите')
+        self.assertContains(response, 'Изработка по поръчка')

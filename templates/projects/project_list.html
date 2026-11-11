@@ -13,10 +13,27 @@
       </p>
     {% endif %}
 
+    {% if filters %}
+      <nav class="chips" aria-label="Филтър на проектите" data-reveal>
+        {% for f in filters %}
+          <a class="chip{% if f.active %} is-active{% endif %}" href="{{ f.url }}"{% if f.active %} aria-current="page"{% endif %}>{{ f.label }} <span class="chip__count">{{ f.count }}</span></a>
+        {% endfor %}
+      </nav>
+    {% endif %}
+
     <div class="projects__list">
       {% for project in projects %}
         {% include 'partials/project_card.html' %}
       {% empty %}
+        {% if active_filter %}
+        <div class="empty-state" data-reveal>
+          <h2>Няма проекти в този раздел</h2>
+          <p>Все още не сме публикували проекти от този вид.</p>
+          <div class="hero__actions">
+            <a class="btn btn--ghost" href="{% url 'projects:realized' %}">Вижте всички проекти</a>
+          </div>
+        </div>
+        {% else %}
         <div class="empty-state" data-reveal>
           <h2>Подготвяме портфолиото ни</h2>
           <p>Скоро ще покажем тук реализирани проекти. Междувременно разгледайте какво можем да произведем за вас.</p>
@@ -25,10 +42,32 @@
             <a class="btn btn--ghost" href="{% url 'projects:eu' %}">Проекти с Европейско финансиране</a>
           </div>
         </div>
+        {% endif %}
       {% endfor %}
     </div>
   </div>
 </section>
+
+{% if custom_steps %}
+<section class="section custom-work" id="po-porachka" aria-labelledby="custom-work-title">
+  <div class="container split">
+    <div>
+      <p class="eyebrow" data-reveal>Изработка по поръчка</p>
+      <h2 class="section__title" id="custom-work-title" data-reveal>Нещо, което го няма в каталога?</h2>
+      <p class="section__lead" data-reveal>Произвеждаме метални изделия и конструкции по ваш чертеж, скица или идея — от единични бройки до серии.</p>
+      <p class="split__more" data-reveal><a class="btn btn--accent" href="{% url 'contacts:page' %}#formulyar">Изпратете чертеж</a></p>
+    </div>
+    <ol class="steps" data-reveal>
+      {% for title, text in custom_steps %}
+        <li class="steps__item">
+          <h3 class="steps__title">{{ title }}</h3>
+          <p>{{ text }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+{% endif %}
 
 {% include 'partials/cta.html' with cta_title='Планирате проект?' cta_text='Изпратете ни чертеж или идея — инженерите ни ще предложат решение.' %}
 {% endblock %}
