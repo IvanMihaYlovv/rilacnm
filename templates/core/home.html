@@ -83,7 +83,10 @@
       {# Made to order: the examples when there are some, otherwise how a custom order works. #}
       <li data-reveal>
         <a class="tile tile--custom" href="{% if custom_project_count %}{% url 'projects:realized' %}?vid=po-porachka{% else %}{% url 'projects:realized' %}#po-porachka{% endif %}">
-          <span class="tile__count">{% if custom_project_count %}{{ custom_project_count }} {% if custom_project_count == 1 %}проект{% else %}проекта{% endif %}{% else %}По поръчка{% endif %}</span>
+          <span class="tile__top">
+            {% if custom_project_count %}<span class="tile__count">{{ custom_project_count }} {% if custom_project_count == 1 %}проект{% else %}проекта{% endif %}</span>{% endif %}
+            <span class="tile__badge">По поръчка</span>
+          </span>
           <h3 class="tile__title">Примери за индивидуални проекти</h3>
           <p class="tile__text">Изделия и конструкции по ваш чертеж, скица или идея — от единични бройки до серии.</p>
           <span class="card__cta">Разгледайте <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>

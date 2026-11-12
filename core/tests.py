@@ -225,6 +225,7 @@ class HomeCustomTileTests(SeededTestCase):
         response = self.client.get('/')
         self.assertContains(response, 'href="/proekti/realizirani/?vid=po-porachka"')
         self.assertContains(response, '1 проект<')
+        self.assertContains(response, 'tile__badge')
 
 
 class ServicesPageTests(SeededTestCase):
