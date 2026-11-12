@@ -36,7 +36,7 @@
       </a>
       <p>Метални контейнери, парково обзавеждане и конструкции по проект. Произведено в подножието на Рила от {{ company.founded }} г.</p>
       <ul class="badges" aria-label="Сертификати">
-        {% for cert in company.certifications %}<li><a href="{% url 'core:certificates' %}">{{ cert.name }}</a></li>{% endfor %}
+        {% for cert in company.certifications %}<li><a href="{% url 'core:certificates' %}#{{ cert.name|slugify }}">{{ cert.name }}</a></li>{% endfor %}
       </ul>
     </div>
 

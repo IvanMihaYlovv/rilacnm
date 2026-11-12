@@ -235,3 +235,12 @@ class ServicesPageTests(SeededTestCase):
         self.assertIn('Метални конструкции по проект', featured)
         self.assertIn('Изпратете чертеж', featured)
         self.assertNotIn('class="service"', featured)  # nothing comes after it
+
+
+class CertificateLinkTests(SeededTestCase):
+    def test_about_badges_link_to_each_certificate(self):
+        about = self.client.get(reverse('core:about'))
+        certificates = self.client.get(reverse('core:certificates'))
+        for slug in ['iso-9001', 'iso-14001', 'iso-45001']:
+            self.assertContains(about, f'href="/sertifikati/#{slug}"')
+            self.assertContains(certificates, f'id="{slug}"')

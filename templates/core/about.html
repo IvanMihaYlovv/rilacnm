@@ -37,7 +37,7 @@
         <h3>В какво вярваме</h3>
         <p>{{ mission }}</p>
         <ul class="badges" aria-label="Сертификати">
-          {% for cert in company.certifications %}<li>{{ cert.name }}</li>{% endfor %}
+          {% for cert in company.certifications %}<li><a href="{% url 'core:certificates' %}#{{ cert.name|slugify }}" title="{{ cert.edition }} — {{ cert.title }}">{{ cert.name }}</a></li>{% endfor %}
         </ul>
       </div>
     </div>

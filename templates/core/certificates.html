@@ -10,7 +10,7 @@
     <ul class="certs">
       {% for cert in company.certifications %}
         <li data-reveal>
-          <article class="cert">
+          <article class="cert" id="{{ cert.name|slugify }}">
             <a class="cert__scan" href="{% static cert.image %}" target="_blank" rel="noopener" aria-label="Отвори сертификат {{ cert.edition }} в пълен размер">
               <img src="{% static cert.image %}" alt="Сертификат {{ cert.edition }} на РИЛА-СНМ ЕООД" loading="lazy" decoding="async" width="859" height="1280">
             </a>
