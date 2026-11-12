@@ -24,7 +24,7 @@
           <div class="swiper gallery__main" data-gallery>
             <ul class="swiper-wrapper">
               {% for image in images %}
-                <li class="swiper-slide">
+                <li class="swiper-slide"{% if image.color %} data-color="{{ image.color }}"{% endif %}>
                   <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" width="{{ image.width }}" height="{{ image.height }}"
                        {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
                 </li>

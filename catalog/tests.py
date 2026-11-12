@@ -165,3 +165,22 @@ class ProductColorTests(TestCase):
             {'name': 'Червен', 'hex': None, 'note': ''},
             {'name': 'Сив', 'hex': '#888', 'note': 'RAL 7040'},
         ])
+
+
+class ColorPhotoTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command('seed_content', verbosity=0)
+        cls.product = Product.objects.select_related('category').get(slug='stomanen-konteyner-bitov')
+        for order, color in enumerate(['Сив', 'Червен', '']):
+            cls.product.images.create(image=f'products/{cls.product.slug}/{order}.jpg', width=10, height=10,
+                                      alt_text=f'снимка {order}', color=color, order=order)
+
+    def test_household_container_offers_grey_red_black(self):
+        self.assertEqual([c['name'] for c in self.product.color_list], ['Сив', 'Червен', 'Черен'])
+
+    def test_gallery_slides_carry_their_colour(self):
+        response = self.client.get(self.product.get_absolute_url())
+        self.assertContains(response, 'data-color="Сив"')
+        self.assertContains(response, 'data-color="Червен"')
+        self.assertContains(response, 'value="Черен"')

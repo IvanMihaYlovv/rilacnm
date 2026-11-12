@@ -22,7 +22,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
-    fields = ['image', 'alt_text', 'is_primary', 'order']
+    fields = ['image', 'alt_text', 'color', 'is_primary', 'order']
 
 
 @admin.register(Product)

@@ -289,7 +289,13 @@ SEPARATE_COLLECTION_COLORS = (
     'Зелен | #2e7d32 | отпадъци от стъкло\n'
     'Жълт | #f2c200 | пластмасови отпадъци'
 )
+HOUSEHOLD_CONTAINER_COLORS = (
+    'Сив | #9a9c9a\n'
+    'Червен | #d32f2f\n'
+    'Черен | #2b2c2b'
+)
 PRODUCT_COLORS = {
+    'Стоманен контейнер, битов': HOUSEHOLD_CONTAINER_COLORS,
     'Контейнери за разделно събиране': SEPARATE_COLLECTION_COLORS,
     'Метална кофа за разделно събиране': SEPARATE_COLLECTION_COLORS,
 }

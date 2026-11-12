@@ -168,6 +168,9 @@ class ProductImage(TimeStampedModel):
     height = models.PositiveIntegerField(editable=False, null=True)
     alt_text = models.CharField('алтернативен текст', max_length=200,
                                 help_text='Описание на снимката за незрящи потребители и Google.')
+    color = models.CharField('цвят', max_length=60, blank=True,
+                             help_text='Името на цвета от списъка на продукта, напр. „Сив“. '
+                                       'При избор на този цвят галерията показва тази снимка.')
     is_primary = models.BooleanField('основна', default=False)
     order = models.PositiveSmallIntegerField('подредба', default=0)
 

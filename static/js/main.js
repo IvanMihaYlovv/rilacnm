@@ -317,7 +317,7 @@
       spaceBetween: 8,
       watchSlidesProgress: true,
     });
-    new Swiper(galleryEl, {
+    const gallery = new Swiper(galleryEl, {
       speed: 700,
       grabCursor: true,
       keyboard: { enabled: true, onlyInViewport: true },
@@ -325,6 +325,28 @@
       thumbs: { swiper: thumbs },
       a11y: { prevSlideMessage: 'Предишна снимка', nextSlideMessage: 'Следваща снимка' },
     });
+
+    // Colour swatches <-> photos: picking a colour shows its photo, and
+    // swiping to a photo of a colour selects that swatch.
+    const picker = $('[data-color-picker]');
+    if (picker) {
+      const key = (s) => (s || '').trim().toLowerCase();
+      const slides = gallery.slides;
+      const slideFor = (color) => slides.findIndex((s) => key(s.dataset.color) === key(color));
+      picker.addEventListener('change', (e) => {
+        const index = slideFor(e.target.value);
+        if (index >= 0 && index !== gallery.activeIndex) gallery.slideTo(index);
+      });
+      gallery.on('slideChange', () => {
+        const color = key(slides[gallery.activeIndex]?.dataset.color);
+        if (!color) return;
+        const input = $$('input[type="radio"]', picker).find((i) => key(i.value) === color);
+        if (input && !input.checked) {
+          input.checked = true;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    }
   }
 
   /* ------------------------------------------------------------------
