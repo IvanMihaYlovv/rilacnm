@@ -390,6 +390,28 @@ html.lenis, html.lenis body { height: auto; }
 .service__title { margin-top: auto; font: 600 1.35rem/1.2 var(--font-display); }
 .service__spec { color: var(--accent-2); font-weight: 600; font-size: .9rem; }
 .service__text { color: var(--muted); }
+.service__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+
+/* The made-to-order service: a light card among the emerald ones, with its own call to action. */
+.service.service--featured {
+  --bg: var(--white); --bg-2: var(--mist); --surface: var(--white); --surface-2: #edf3ef;
+  --text: #08291f; --muted: #4b695e; --tint: 10 58 44; --line: rgb(var(--tint) / .14);
+  --accent: var(--emerald); --accent-deep: var(--emerald-deep); --accent-2: var(--emerald-lit);
+  --on-accent: var(--white); --btn-fill: var(--emerald); --btn-glint: rgb(255 255 255 / .16);
+  --heat: linear-gradient(115deg, var(--emerald-deep) 0%, #14705a 55%, var(--emerald) 100%);
+  color: var(--text);
+  background: linear-gradient(160deg, var(--white) 0%, var(--mist) 100%);
+  border: 1.5px solid var(--emerald); box-shadow: var(--shadow-lift);
+}
+.service--featured::after {
+  content: ''; position: absolute; inset: 0 0 auto; height: 4px; background: var(--heat);
+}
+.service--featured .service__num { -webkit-text-stroke: 1px rgb(var(--tint) / .35); }
+.service__badge {
+  padding: .35rem .75rem; border-radius: 999px; background: var(--emerald); color: var(--white);
+  font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+}
+.service__cta { position: relative; z-index: 1; align-self: flex-start; margin-top: .4rem; }
 
 /* Horizontal pinned scroll — enabled by JS only on wide screens */
 .services.is-horizontal .services__pin { height: 100vh; padding-top: var(--header-h); display: flex; flex-direction: column; justify-content: center; overflow: hidden; }

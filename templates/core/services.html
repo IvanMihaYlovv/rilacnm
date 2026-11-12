@@ -6,11 +6,17 @@
 <section class="section section--flush" aria-label="Списък с услуги">
   <ol class="services__track services__track--grid">
     {% for service in services %}
-      <li class="service" data-reveal>
-        <span class="service__num">{{ forloop.counter|stringformat:"02d" }}</span>
+      <li class="service{% if service.featured %} service--featured{% endif %}" data-reveal>
+        <div class="service__top">
+          <span class="service__num">{{ forloop.counter|stringformat:"02d" }}</span>
+          {% if service.featured %}<span class="service__badge">По поръчка</span>{% endif %}
+        </div>
         <h2 class="service__title"><a class="service__link" href="{% url 'core:service' service.slug %}">{{ service.title }}</a></h2>
         <p class="service__spec">{{ service.spec }}</p>
         <p class="service__text">{{ service.text }}</p>
+        {% if service.featured %}
+          <a class="btn btn--accent btn--sm service__cta" href="{% url 'contacts:page' %}#formulyar">Изпратете чертеж</a>
+        {% endif %}
       </li>
     {% endfor %}
   </ol>

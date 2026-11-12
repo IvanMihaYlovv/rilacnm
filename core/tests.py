@@ -225,3 +225,13 @@ class HomeCustomTileTests(SeededTestCase):
         response = self.client.get('/')
         self.assertContains(response, 'href="/proekti/realizirani/?vid=po-porachka"')
         self.assertContains(response, '1 проект<')
+
+
+class ServicesPageTests(SeededTestCase):
+    def test_made_to_order_service_is_highlighted_last(self):
+        html = self.client.get(reverse('core:services')).content.decode()
+        self.assertEqual(html.count('service--featured'), 1)
+        featured = html[html.index('service--featured'):]
+        self.assertIn('Метални конструкции по проект', featured)
+        self.assertIn('Изпратете чертеж', featured)
+        self.assertNotIn('class="service"', featured)  # nothing comes after it
