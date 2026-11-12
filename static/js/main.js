@@ -173,6 +173,31 @@
   });
 
   /* ------------------------------------------------------------------
+     Product colours: the chosen swatch is named beside the legend and
+     carried into the quote form's message as a "Цвят: …" line.
+  ------------------------------------------------------------------ */
+  $$('[data-color-picker]').forEach((picker) => {
+    const name = $('[data-color-name]', picker);
+    const note = $('[data-color-note]', picker);
+    const chosen = () => $('input:checked', picker);
+    picker.addEventListener('change', () => {
+      const input = chosen();
+      if (!input) return;
+      if (name) name.textContent = input.value;
+      if (note) note.textContent = input.dataset.note ? `— ${input.dataset.note}` : '';
+    });
+    $$('[data-color-quote]').forEach((link) => link.addEventListener('click', () => {
+      const input = chosen();
+      const message = $('#zapitvane textarea[name$="message"]');
+      if (!input || !message) return;
+      const line = `Цвят: ${input.value}`;
+      const rest = message.value.split('\n').filter((l) => !l.startsWith('Цвят: '));
+      message.value = [line, ...rest].join('\n').trimEnd();
+      message.dispatchEvent(new Event('input', { bubbles: true }));
+    }));
+  });
+
+  /* ------------------------------------------------------------------
      AJAX forms (fall back to a normal POST + redirect without JS)
   ------------------------------------------------------------------ */
   $$('[data-ajax-form]').forEach((form) => {

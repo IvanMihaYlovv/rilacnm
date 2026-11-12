@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -8,6 +10,7 @@ from core.validators import validate_image_size
 
 
 KEY_SPECS = 3
+HEX_COLOR = re.compile(r'#(?:[0-9a-fA-F]{3}){1,2}')
 
 
 class ActiveQuerySet(models.QuerySet):
@@ -43,6 +46,10 @@ class Category(SluggedModel):
         return self.meta_description or Truncator(self.description).chars(160)
 
 
+def product_drawing_path(instance, filename):
+    return f'products/{instance.slug}/drawing/{filename}'
+
+
 class ProductQuerySet(ActiveQuerySet):
     def for_listing(self):
         return (
@@ -67,6 +74,14 @@ class Product(SluggedModel):
                                                 'Първите три се показват като акценти.')
     standards = models.TextField('стандарти и документи', blank=True, help_text='По един на ред.')
     options = models.TextField('опции', blank=True, help_text='По една на ред.')
+    colors = models.TextField(
+        'цветове', blank=True,
+        help_text='По един на ред: име | #код | бележка, напр. „Син | #1f5aa6 | хартия“. '
+                  'Бележката не е задължителна. Оставете празно, ако продуктът няма избор на цвят.')
+    drawing = models.ImageField(
+        'чертеж с размери', upload_to=product_drawing_path, blank=True,
+        validators=[validate_image_size],
+        help_text='JPG или PNG. Показва се до характеристиките и в PDF спецификацията.')
     is_featured = models.BooleanField('на начална страница', default=True)
     is_active = models.BooleanField('активен', default=True)
     order = models.PositiveSmallIntegerField('подредба', default=0)
@@ -98,6 +113,30 @@ class Product(SluggedModel):
     @property
     def options_list(self):
         return self.options.splitlines()
+
+    @property
+    def color_list(self):
+        """`colors` lines as dicts: name, hex (None unless a valid #rgb/#rrggbb), note."""
+        result = []
+        for line in self.colors.splitlines():
+            parts = [p.strip() for p in line.split('|')]
+            if not parts[0]:
+                continue
+            hex_code = parts[1] if len(parts) > 1 else ''
+            result.append({
+                'name': parts[0],
+                'hex': hex_code if HEX_COLOR.fullmatch(hex_code) else None,
+                'note': parts[2] if len(parts) > 2 else '',
+            })
+        return result
+
+    @property
+    def color_on_request(self):
+        """True when an option offers a colour of the customer's choice."""
+        return any('цвят' in o.lower() for o in self.options_list)
+
+    def get_spec_sheet_url(self):
+        return reverse('catalog:spec_sheet', kwargs={'category': self.category.slug, 'slug': self.slug})
 
     @property
     def seo_title(self):

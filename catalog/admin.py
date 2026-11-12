@@ -36,6 +36,7 @@ class ProductAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['category', 'name', 'slug', 'short_description', 'description',
                            'highlight', 'specifications', 'standards', 'options']}),
+        ('Цветове и чертеж', {'fields': ['colors', 'drawing']}),
         ('Видимост', {'fields': ['is_active', 'is_featured', 'order']}),
         ('SEO', {'fields': ['meta_title', 'meta_description'], 'classes': ['collapse']}),
     ]

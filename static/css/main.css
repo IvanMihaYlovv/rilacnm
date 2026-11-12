@@ -904,3 +904,34 @@ a.tile.tile--custom:hover { border-color: var(--emerald-glint); }
 .cert__meta dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 900px) { .certs { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .certs, .certs--two { grid-template-columns: 1fr; } }
+
+/* Product colours, spec-sheet download and dimension drawing (product page) */
+.btn__icon { flex: none; }
+.colors { margin: 1.6rem 0 0; padding: 0; border: 0; }
+.colors__legend { padding: 0; margin-bottom: .7rem; color: var(--muted); font-size: .92rem; }
+.colors__legend strong { color: var(--text); font-weight: 600; }
+.colors__note { color: var(--muted); }
+.colors__list { display: flex; flex-wrap: wrap; gap: .6rem; }
+.swatch { position: relative; display: inline-flex; cursor: pointer; border-radius: 50%; }
+.swatch__dot {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--swatch, var(--surface-2));
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / .12), 0 0 0 3px var(--bg), 0 0 0 4px var(--line);
+  transition: box-shadow .25s var(--ease), transform .25s var(--ease);
+}
+.swatch__dot--blank { background: repeating-linear-gradient(45deg, var(--surface-2) 0 6px, var(--bg) 6px 12px); }
+.swatch:hover .swatch__dot { transform: scale(1.06); }
+.swatch input:checked + .swatch__dot { box-shadow: inset 0 0 0 1px rgb(0 0 0 / .12), 0 0 0 3px var(--bg), 0 0 0 5px var(--accent); }
+.swatch input:focus-visible + .swatch__dot { outline: 2px solid var(--accent); outline-offset: 6px; }
+.colors__custom { margin-top: .7rem; color: var(--muted); font-size: .9rem; }
+.product-hero__more { margin-top: 1rem; font-size: .92rem; }
+.product-hero__more a { color: var(--accent-2); font-weight: 600; }
+.product-hero__more a:hover { color: var(--text); }
+
+.drawing { margin: clamp(2rem, 4vw, 3rem) 0 0; }
+.drawing a { display: block; padding: clamp(1rem, 2.5vw, 2rem); background: var(--white); border-radius: var(--radius); }
+.drawing img { display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain; }
+.drawing figcaption { margin-top: .7rem; color: var(--muted); font-size: .85rem; }
+.sheet__download { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.2rem; margin-top: clamp(2rem, 4vw, 3rem); }
+.sheet__download span { color: var(--muted); font-size: .9rem; }
+@media print { .sheet__download, .colors__list { display: none; } }

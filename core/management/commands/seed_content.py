@@ -283,6 +283,18 @@ NEWS = [
 ]
 
 
+# Swatches for products sold in set colours; hex codes are display approximations.
+SEPARATE_COLLECTION_COLORS = (
+    'Син | #1f5aa6 | хартиени отпадъци\n'
+    'Зелен | #2e7d32 | отпадъци от стъкло\n'
+    'Жълт | #f2c200 | пластмасови отпадъци'
+)
+PRODUCT_COLORS = {
+    'Контейнери за разделно събиране': SEPARATE_COLLECTION_COLORS,
+    'Метална кофа за разделно събиране': SEPARATE_COLLECTION_COLORS,
+}
+
+
 class Command(BaseCommand):
     help = 'Зарежда началното съдържание на сайта (идемпотентно).'
 
@@ -307,6 +319,7 @@ class Command(BaseCommand):
                     defaults={'highlight': highlight, 'short_description': short,
                               'description': desc, 'specifications': specs,
                               'standards': '\n'.join(standards), 'options': '\n'.join(options),
+                              'colors': PRODUCT_COLORS.get(name, ''),
                               'order': c_order * 100 + p_order})
 
         for order, data in enumerate(PROJECTS):

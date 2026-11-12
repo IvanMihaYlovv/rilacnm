@@ -1,5 +1,8 @@
 from django.db.models import Prefetch
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.views.decorators.cache import cache_control
 from django.views.generic import DetailView, TemplateView
 
 from contacts.forms import InquiryForm
@@ -7,6 +10,7 @@ from core.seo import SeoPageMixin, item_list_node, product_node
 from projects.models import Project
 
 from .models import Category, Product
+from .pdf import render_spec_sheet
 
 RELATED_LIMIT = 8
 # Custom-made projects shown under the catalog, before the "made to order" call to action.
@@ -82,6 +86,16 @@ class CategoryView(SeoPageMixin, DetailView):
 
     def get_schema_nodes(self):
         return [item_list_node(_product_entries(self.products))]
+
+
+@cache_control(public=True, max_age=3600)
+def spec_sheet(request, category, slug):
+    product = get_object_or_404(Product.objects.for_listing(), category__slug=category, slug=slug)
+    response = HttpResponse(render_spec_sheet(product, list(product.images.all())),
+                            content_type='application/pdf')
+    # inline: opens in the browser's PDF viewer, which also offers download and print.
+    response['Content-Disposition'] = f'inline; filename="{product.slug}-specifikaciya.pdf"'
+    return response
 
 
 class ProductDetailView(SeoPageMixin, DetailView):

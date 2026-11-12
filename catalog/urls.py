@@ -8,4 +8,5 @@ urlpatterns = [
     path('produkti/', views.CatalogView.as_view(), name='list'),
     path('produkti/<slug:slug>/', views.CategoryView.as_view(), name='category'),
     path('produkti/<slug:category>/<slug:slug>/', views.ProductDetailView.as_view(), name='product'),
+    path('produkti/<slug:category>/<slug:slug>/specifikaciya.pdf', views.spec_sheet, name='spec_sheet'),
 ]

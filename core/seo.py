@@ -152,16 +152,32 @@ def product_node(product):
         'description': product.description or product.short_description,
         'category': product.category.name,
         'url': url,
+        'mainEntityOfPage': {'@id': f'{url}#webpage'},
         'brand': {'@type': 'Brand', 'name': COMPANY['name']},
         'manufacturer': {'@id': org_id()},
+        'countryOfOrigin': {'@type': 'Country', 'name': COMPANY['country']},
+        'subjectOf': {
+            '@type': 'DigitalDocument',
+            'name': f'{product.name} — техническа спецификация',
+            'encodingFormat': 'application/pdf',
+            'url': absolute(product.get_spec_sheet_url()),
+        },
         'additionalProperty': [
             {'@type': 'PropertyValue', 'name': k, 'value': v}
             for k, v in product.specifications.items()
         ],
     }
     images = [absolute(i.image.url) for i in product.images.all()]
+    if product.drawing:
+        images.append(absolute(product.drawing.url))
     if images:
         data['image'] = images
+    if product.color_list:
+        data['color'] = ', '.join(c['name'] for c in product.color_list)
+    standards = [s for s in product.standards_list if s.strip()]
+    if standards:
+        data['additionalProperty'].append(
+            {'@type': 'PropertyValue', 'name': 'Стандарти и документи', 'value': '; '.join(standards)})
     return data
 
 

@@ -62,10 +62,40 @@
           </dl>
         {% endif %}
 
+        {% if product.color_list or product.color_on_request %}
+          {% with colors=product.color_list %}
+          <fieldset class="colors" data-color-picker>
+            <legend class="colors__legend">
+              Цвят{% if colors %}: <strong data-color-name>{{ colors.0.name }}</strong>
+              <span class="colors__note" data-color-note>{% if colors.0.note %}— {{ colors.0.note }}{% endif %}</span>{% endif %}
+            </legend>
+            {% if colors %}
+              <div class="colors__list">
+                {% for c in colors %}
+                  <label class="swatch" title="{{ c.name }}{% if c.note %} — {{ c.note }}{% endif %}">
+                    <input class="visually-hidden" type="radio" name="product-color" value="{{ c.name }}"
+                           data-note="{{ c.note }}" {% if forloop.first %}checked{% endif %}>
+                    <span class="swatch__dot{% if not c.hex %} swatch__dot--blank{% endif %}"{% if c.hex %} style="--swatch: {{ c.hex }}"{% endif %}></span>
+                    <span class="visually-hidden">{{ c.name }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            {% endif %}
+            {% if product.color_on_request %}
+              <p class="colors__custom">{% if colors %}Друг цвят — по ваш избор.{% else %}Боядисваме в цвят по ваш избор — посочете го в запитването.{% endif %}</p>
+            {% endif %}
+          </fieldset>
+          {% endwith %}
+        {% endif %}
+
         <div class="hero__actions">
-          <a class="btn btn--accent" href="#zapitvane" data-magnetic>Поискайте оферта</a>
-          <a class="btn btn--ghost" href="#harakteristiki" data-magnetic>Всички характеристики</a>
+          <a class="btn btn--accent" href="#zapitvane" data-magnetic data-color-quote>Поискайте оферта</a>
+          <a class="btn btn--ghost" href="{{ product.get_spec_sheet_url }}" target="_blank" rel="noopener" data-magnetic>
+            <svg class="btn__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Спецификация (PDF)
+          </a>
         </div>
+        <p class="product-hero__more"><a href="#harakteristiki">Всички характеристики ↓</a></p>
 
         <ul class="perks">
           <li>Собствено производство в гр. Рила</li>
@@ -113,6 +143,24 @@
         </div>
       {% endif %}
     </div>
+
+    {% if product.drawing %}
+      <figure class="drawing" data-reveal>
+        <a href="{{ product.drawing.url }}" target="_blank" rel="noopener">
+          <img src="{{ product.drawing.url }}" alt="Чертеж с размери на {{ product.name }}"
+               width="{{ product.drawing.width }}" height="{{ product.drawing.height }}" loading="lazy" decoding="async">
+        </a>
+        <figcaption>Чертеж с размери · натиснете за пълен размер</figcaption>
+      </figure>
+    {% endif %}
+
+    <p class="sheet__download" data-reveal>
+      <a class="btn btn--ghost" href="{{ product.get_spec_sheet_url }}" target="_blank" rel="noopener">
+        <svg class="btn__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        Изтеглете спецификацията (PDF)
+      </a>
+      <span>За търгове и вътрешно одобрение — с всички данни от тази страница.</span>
+    </p>
   </div>
 </section>
 
@@ -131,7 +179,7 @@
       <p class="eyebrow" data-reveal>Запитване</p>
       <h2 class="section__title" id="inquiry-title" data-reveal>Оферта за „{{ product.name }}“</h2>
       <p class="section__lead" data-reveal>
-        Кажете ни количеството и къде да доставим — ще ви върнем цена и срок обикновено до един работен ден.
+        Кажете ни какво количество ви трябва — ще ви върнем цена и срок за изработка.
         Ако ви трябват други размери или цвят, напишете го в съобщението.
       </p>
     </div>

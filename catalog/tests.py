@@ -111,3 +111,57 @@ class CustomExamplesTests(TestCase):
         response = self.client.get('/produkti/')
         self.assertEqual(len(response.context['custom_examples']), 4)
         self.assertContains(response, 'href="/proekti/realizirani/?vid=po-porachka"')
+
+
+class SpecSheetTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command('seed_content', verbosity=0)
+
+    def test_every_product_has_a_pdf(self):
+        for product in Product.objects.select_related('category'):
+            response = self.client.get(product.get_spec_sheet_url())
+            self.assertEqual(response.status_code, 200, product.slug)
+            self.assertEqual(response['Content-Type'], 'application/pdf')
+            self.assertTrue(response.content.startswith(b'%PDF'), product.slug)
+
+    def test_inactive_product_has_no_pdf(self):
+        product = Product.objects.select_related('category').first()
+        Product.objects.filter(pk=product.pk).update(is_active=False)
+        self.assertEqual(self.client.get(product.get_spec_sheet_url()).status_code, 404)
+
+    def test_product_page_links_the_pdf_and_schema_mentions_it(self):
+        product = Product.objects.select_related('category').first()
+        response = self.client.get(product.get_absolute_url())
+        self.assertContains(response, f'href="{product.get_spec_sheet_url()}"')
+        self.assertContains(response, '"DigitalDocument"')
+
+
+class ProductColorTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command('seed_content', verbosity=0)
+
+    def test_set_colours_render_as_swatches(self):
+        product = Product.objects.select_related('category').get(slug='konteyneri-za-razdelno-sabirane')
+        response = self.client.get(product.get_absolute_url())
+        self.assertContains(response, 'data-color-picker')
+        self.assertContains(response, '--swatch: #1f5aa6')
+        self.assertContains(response, 'value="Жълт"')
+
+    def test_colour_on_request_shows_a_note_without_swatches(self):
+        product = Product.objects.select_related('category').get(slug='parkovo-koshche-rila-ii')
+        response = self.client.get(product.get_absolute_url())
+        self.assertContains(response, 'цвят по ваш избор')
+        self.assertNotContains(response, 'name="product-color"')
+
+    def test_products_without_colours_have_no_picker(self):
+        product = Product.objects.select_related('category').get(slug='metalna-kofa')
+        self.assertNotContains(self.client.get(product.get_absolute_url()), 'data-color-picker')
+
+    def test_invalid_hex_is_dropped(self):
+        product = Product(colors='Червен | red\nСив | #888 | RAL 7040\n | #fff')
+        self.assertEqual(product.color_list, [
+            {'name': 'Червен', 'hex': None, 'note': ''},
+            {'name': 'Сив', 'hex': '#888', 'note': 'RAL 7040'},
+        ])
