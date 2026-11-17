@@ -1,7 +1,13 @@
-from django.core.management import call_command
-from django.test import TestCase
+import tempfile
+from pathlib import Path
 
-from .models import Category, Product
+from django.core.management import call_command
+from django.test import TestCase, override_settings
+from PIL import Image
+
+from core import thumbs
+
+from .models import Category, Product, ProductImage
 
 
 class CatalogTests(TestCase):
@@ -184,3 +190,61 @@ class ColorPhotoTests(TestCase):
         self.assertContains(response, 'data-color="Сив"')
         self.assertContains(response, 'data-color="Червен"')
         self.assertContains(response, 'value="Черен"')
+
+
+class ResponsiveImageTests(TestCase):
+    """Cards and galleries offer smaller WebP copies; the full-size file stays the fallback."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command('seed_content', verbosity=0)
+        cls.product = Product.objects.select_related('category').get(slug='metalna-kofa')
+
+    def setUp(self):
+        self.media = tempfile.TemporaryDirectory()
+        self.addCleanup(self.media.cleanup)
+        override = override_settings(MEDIA_ROOT=self.media.name)
+        override.enable()
+        self.addCleanup(override.disable)
+
+    def add_photo(self, name, width, height=None):
+        path = Path(self.media.name) / 'products' / self.product.slug / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        Image.new('RGB', (width, height or width * 3 // 4), '#8a9a92').save(path)
+        image = ProductImage(product=self.product, alt_text='Снимка', order=self.product.images.count())
+        image.image.name = f'products/{self.product.slug}/{name}'
+        image.full_clean()  # also reads the pixel size into width/height, as the admin does
+        image.save()
+        return image
+
+    def test_card_offers_webp_copies_and_keeps_the_original(self):
+        self.add_photo('golyama.jpg', 2000)
+        response = self.client.get('/produkti/')
+        base = f'/media/thumbs/%s/products/{self.product.slug}/golyama.jpg.webp'
+        self.assertContains(response, f'{base % 400} 400w, {base % 800} 800w, '
+                                      f'/media/products/{self.product.slug}/golyama.jpg 2000w')
+        with Image.open(Path(self.media.name) / (base % 400).removeprefix('/media/')) as thumb:
+            self.assertEqual((thumb.format, thumb.width), ('WEBP', 400))
+
+    def test_small_photo_is_never_upscaled(self):
+        image = self.add_photo('malka.jpg', 400)
+        self.assertEqual(thumbs.srcset(image.image.name, image.width, (400, 800)), '')
+        self.assertNotContains(self.client.get('/produkti/'), 'srcset=')
+
+    def test_missing_file_falls_back_to_plain_src(self):
+        image = self.add_photo('iztrita.jpg', 2000)
+        (Path(self.media.name) / image.image.name).unlink()
+        with self.assertLogs('core.thumbs', level='WARNING'):
+            response = self.client.get(self.product.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'srcset=')
+
+    def test_gallery_photos_open_in_the_lightbox(self):
+        self.add_photo('edno.jpg', 1600)
+        self.add_photo('dve.jpg', 1600)
+        response = self.client.get(self.product.get_absolute_url())
+        self.assertContains(response, 'data-zoom-src=', count=2)
+        self.assertContains(response, 'data-lightbox-next')
+
+    def test_no_lightbox_without_photos(self):
+        self.assertNotContains(self.client.get(self.product.get_absolute_url()), 'data-lightbox')

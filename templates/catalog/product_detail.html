@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static site_tags %}
 
 {% block og_type %}product{% endblock %}
 {% block og_image %}
@@ -19,13 +19,14 @@
     {% include 'partials/breadcrumbs.html' %}
 
     <div class="product-hero__grid">
-      <div class="gallery">
+      <div class="gallery"{% if images %} data-zoom{% endif %}>
         {% if images|length > 1 %}
           <div class="swiper gallery__main" data-gallery>
             <ul class="swiper-wrapper">
               {% for image in images %}
                 <li class="swiper-slide"{% if image.color %} data-color="{{ image.color }}"{% endif %}>
-                  <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" width="{{ image.width }}" height="{{ image.height }}"
+                  <img src="{{ image.image.url }}"{% responsive image 'gallery' %} alt="{{ image.alt_text }}" width="{{ image.width }}" height="{{ image.height }}"
+                       data-zoom-src="{{ image.image.url }}"
                        {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
                 </li>
               {% endfor %}
@@ -35,17 +36,23 @@
           <div class="swiper gallery__thumbs" data-gallery-thumbs>
             <ul class="swiper-wrapper">
               {% for image in images %}
-                <li class="swiper-slide"><img src="{{ image.image.url }}" alt="" width="{{ image.width }}" height="{{ image.height }}" loading="lazy" decoding="async"></li>
+                <li class="swiper-slide"><img src="{{ image.image.url }}"{% responsive image 'thumb' %} alt="" width="{{ image.width }}" height="{{ image.height }}" loading="lazy" decoding="async"></li>
               {% endfor %}
             </ul>
           </div>
         {% elif images %}
-          <img class="gallery__single" src="{{ images.0.image.url }}" alt="{{ images.0.alt_text }}" width="{{ images.0.width }}" height="{{ images.0.height }}" fetchpriority="high">
+          <img class="gallery__single" src="{{ images.0.image.url }}"{% responsive images.0 'gallery' %} alt="{{ images.0.alt_text }}" width="{{ images.0.width }}" height="{{ images.0.height }}"
+               data-zoom-src="{{ images.0.image.url }}" fetchpriority="high">
         {% else %}
           <div class="gallery__placeholder card__placeholder" aria-hidden="true">
             <span class="card__index">{{ product.category.name }}</span>
             <span class="card__highlight">{{ product.highlight|default:product.name }}</span>
           </div>
+        {% endif %}
+        {% if images %}
+          <button class="gallery__zoom" type="button" data-zoom-open hidden aria-label="Уголемете снимката">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h5v5M9 20H4v-5M20 4l-6.5 6.5M4 20l6.5-6.5"/></svg>
+          </button>
         {% endif %}
       </div>
 
@@ -218,5 +225,25 @@
     <div class="slider-progress" data-slider-progress></div>
   </div>
 </section>
+{% endif %}
+
+{% if images %}
+<dialog class="lightbox" data-lightbox aria-label="Снимки на {{ product.name }}">
+  <figure class="lightbox__figure">
+    <img class="lightbox__img" data-lightbox-img alt="">
+    <figcaption class="lightbox__caption"><span data-lightbox-caption></span><span class="lightbox__count" data-lightbox-count></span></figcaption>
+  </figure>
+  <button class="lightbox__btn lightbox__btn--close" type="button" data-lightbox-close aria-label="Затворете">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  {% if images|length > 1 %}
+    <button class="lightbox__btn lightbox__btn--prev" type="button" data-lightbox-prev aria-label="Предишна снимка">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="lightbox__btn lightbox__btn--next" type="button" data-lightbox-next aria-label="Следваща снимка">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  {% endif %}
+</dialog>
 {% endif %}
 {% endblock %}

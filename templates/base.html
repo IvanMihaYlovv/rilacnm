@@ -27,8 +27,8 @@
   {# Local SEO #}
   <meta name="geo.region" content="BG-10">
   <meta name="geo.placename" content="{{ company.city }}">
-  <meta name="geo.position" content="{{ company.geo.lat }};{{ company.geo.lng }}">
-  <meta name="ICBM" content="{{ company.geo.lat }}, {{ company.geo.lng }}">
+  <meta name="geo.position" content="{{ company.geo.lat|stringformat:'s' }};{{ company.geo.lng|stringformat:'s' }}">
+  <meta name="ICBM" content="{{ company.geo.lat|stringformat:'s' }}, {{ company.geo.lng|stringformat:'s' }}">
 
   <meta name="theme-color" content="#ffffff">
   <meta name="format-detection" content="telephone=no">

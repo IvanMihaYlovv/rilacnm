@@ -350,6 +350,58 @@
   }
 
   /* ------------------------------------------------------------------
+     Photo lightbox: a click on a gallery photo opens it full-screen.
+     Native <dialog> gives the focus trap, Esc and the backdrop for free.
+  ------------------------------------------------------------------ */
+  const zoomRoot = $('[data-zoom]');
+  const lightbox = $('[data-lightbox]');
+  if (zoomRoot && lightbox && typeof lightbox.showModal === 'function') {
+    const photos = $$('img[data-zoom-src]', zoomRoot);
+    const view = $('[data-lightbox-img]', lightbox);
+    const caption = $('[data-lightbox-caption]', lightbox);
+    const count = $('[data-lightbox-count]', lightbox);
+    const swiper = () => galleryEl?.swiper;
+    let current = 0;
+
+    const show = (index) => {
+      current = (index + photos.length) % photos.length;
+      const photo = photos[current];
+      view.src = photo.dataset.zoomSrc;
+      view.alt = photo.alt;
+      caption.textContent = photo.alt;
+      count.textContent = photos.length > 1 ? `${current + 1} / ${photos.length}` : '';
+    };
+    const open = (index) => {
+      show(index);
+      lightbox.showModal();
+      lenis?.stop();
+    };
+    const step = (by) => {
+      show(current + by);
+      swiper()?.slideTo(current, 0);  // the page gallery follows, so closing lands on the same photo
+    };
+
+    photos.forEach((photo, index) => photo.addEventListener('click', () => open(index)));
+    const opener = $('[data-zoom-open]', zoomRoot);
+    if (opener) {
+      opener.hidden = false;
+      opener.addEventListener('click', () => open(swiper()?.activeIndex ?? 0));
+    }
+    $('[data-lightbox-close]', lightbox).addEventListener('click', () => lightbox.close());
+    $('[data-lightbox-prev]', lightbox)?.addEventListener('click', () => step(-1));
+    $('[data-lightbox-next]', lightbox)?.addEventListener('click', () => step(1));
+    // A click on the dark area around the photo closes; clicks on the photo or buttons don't.
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target.matches('.lightbox__figure')) lightbox.close(); });
+    lightbox.addEventListener('keydown', (e) => {
+      if (photos.length < 2 || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+      e.stopPropagation();  // the page gallery listens for arrows too; step() already moves it
+      step(e.key === 'ArrowLeft' ? -1 : 1);
+    });
+    lightbox.addEventListener('close', () => { lenis?.start(); view.removeAttribute('src'); });
+    zoomRoot.classList.add('gallery--zoomable');
+  }
+
+  /* ------------------------------------------------------------------
      Map facade: the Google iframe (and its cookies) loads only on request
   ------------------------------------------------------------------ */
   $$('[data-map]').forEach((map) => {

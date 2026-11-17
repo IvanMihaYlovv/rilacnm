@@ -1,8 +1,8 @@
-<article class="card" aria-labelledby="p-{{ product.pk }}-title">
+{% load site_tags %}<article class="card" aria-labelledby="p-{{ product.pk }}-title">
   <a class="card__media" href="{{ product.get_absolute_url }}" tabindex="-1" aria-hidden="true">
     {% with image=product.primary_image %}
       {% if image %}
-        <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" width="{{ image.width }}" height="{{ image.height }}" loading="lazy" decoding="async">
+        <img src="{{ image.image.url }}"{% responsive image 'card' %} alt="{{ image.alt_text }}" width="{{ image.width }}" height="{{ image.height }}" loading="lazy" decoding="async">
       {% else %}
         <span class="card__placeholder">
           <span class="card__index">{{ index|stringformat:"02d" }}</span>
