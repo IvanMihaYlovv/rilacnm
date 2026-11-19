@@ -162,8 +162,15 @@ class ProductColorTests(TestCase):
         self.assertNotContains(response, 'name="product-color"')
 
     def test_products_without_colours_have_no_picker(self):
-        product = Product.objects.select_related('category').get(slug='metalna-kofa')
+        product = Product.objects.select_related('category').get(slug='sad-za-pepel')
         self.assertNotContains(self.client.get(product.get_absolute_url()), 'data-color-picker')
+
+    def test_wheels_option_renders_as_text_chips(self):
+        product = Product.objects.select_related('category').get(slug='metalna-kofa')
+        response = self.client.get(product.get_absolute_url())
+        self.assertContains(response, 'data-color-label="Вариант"')
+        self.assertContains(response, '<span class="swatch__chip">С колела</span>', html=True)
+        self.assertNotContains(response, 'swatch__dot')
 
     def test_invalid_hex_is_dropped(self):
         product = Product(colors='Червен | red\nСив | #888 | RAL 7040\n | #fff')

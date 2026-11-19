@@ -190,8 +190,9 @@
       const input = chosen();
       const message = $('#zapitvane textarea[name$="message"]');
       if (!input || !message) return;
-      const line = `Цвят: ${input.value}`;
-      const rest = message.value.split('\n').filter((l) => !l.startsWith('Цвят: '));
+      const label = picker.dataset.colorLabel || 'Цвят';
+      const line = `${label}: ${input.value}`;
+      const rest = message.value.split('\n').filter((l) => !l.startsWith(`${label}: `));
       message.value = [line, ...rest].join('\n').trimEnd();
       message.dispatchEvent(new Event('input', { bubbles: true }));
     }));

@@ -71,19 +71,23 @@
 
         {% if product.color_list or product.color_on_request %}
           {% with colors=product.color_list %}
-          <fieldset class="colors" data-color-picker>
+          <fieldset class="colors" data-color-picker data-color-label="{% if colors.0.hex or not colors %}Цвят{% else %}Вариант{% endif %}">
             <legend class="colors__legend">
-              Цвят{% if colors %}: <strong data-color-name>{{ colors.0.name }}</strong>
+              {% if colors.0.hex or not colors %}Цвят{% else %}Вариант{% endif %}{% if colors %}: <strong data-color-name>{{ colors.0.name }}</strong>
               <span class="colors__note" data-color-note>{% if colors.0.note %}— {{ colors.0.note }}{% endif %}</span>{% endif %}
             </legend>
             {% if colors %}
               <div class="colors__list">
                 {% for c in colors %}
-                  <label class="swatch" title="{{ c.name }}{% if c.note %} — {{ c.note }}{% endif %}">
+                  <label class="swatch{% if not c.hex %} swatch--text{% endif %}" title="{{ c.name }}{% if c.note %} — {{ c.note }}{% endif %}">
                     <input class="visually-hidden" type="radio" name="product-color" value="{{ c.name }}"
                            data-note="{{ c.note }}" {% if forloop.first %}checked{% endif %}>
-                    <span class="swatch__dot{% if not c.hex %} swatch__dot--blank{% endif %}"{% if c.hex %} style="--swatch: {{ c.hex }}"{% endif %}></span>
-                    <span class="visually-hidden">{{ c.name }}</span>
+                    {% if c.hex %}
+                      <span class="swatch__dot" style="--swatch: {{ c.hex }}"></span>
+                      <span class="visually-hidden">{{ c.name }}</span>
+                    {% else %}
+                      <span class="swatch__chip">{{ c.name }}</span>
+                    {% endif %}
                   </label>
                 {% endfor %}
               </div>

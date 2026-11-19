@@ -957,6 +957,16 @@ a.tile.tile--custom:hover { border-color: var(--emerald-glint); }
   transition: box-shadow .25s var(--ease), transform .25s var(--ease);
 }
 .swatch__dot--blank { background: repeating-linear-gradient(45deg, var(--surface-2) 0 6px, var(--bg) 6px 12px); }
+.swatch--text { border-radius: 999px; }
+.swatch__chip {
+  padding: .55rem 1.1rem; border-radius: 999px; font-size: .95rem; line-height: 1;
+  background: var(--bg); color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: box-shadow .25s var(--ease), transform .25s var(--ease);
+}
+.swatch:hover .swatch__chip { transform: scale(1.04); }
+.swatch input:checked + .swatch__chip { box-shadow: inset 0 0 0 2px var(--accent); }
+.swatch input:focus-visible + .swatch__chip { outline: 2px solid var(--accent); outline-offset: 4px; }
 .swatch:hover .swatch__dot { transform: scale(1.06); }
 .swatch input:checked + .swatch__dot { box-shadow: inset 0 0 0 1px rgb(0 0 0 / .12), 0 0 0 3px var(--bg), 0 0 0 5px var(--accent); }
 .swatch input:focus-visible + .swatch__dot { outline: 2px solid var(--accent); outline-offset: 6px; }

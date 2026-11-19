@@ -298,6 +298,7 @@ PRODUCT_COLORS = {
     'Стоманен контейнер, битов': HOUSEHOLD_CONTAINER_COLORS,
     'Контейнери за разделно събиране': SEPARATE_COLLECTION_COLORS,
     'Метална кофа за разделно събиране': SEPARATE_COLLECTION_COLORS,
+    'Метална кофа': 'Без колела\nС колела',
 }
 
 
